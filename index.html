@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JMEP — Registro de Jóvenes</title>
+<style>
+:root{
+  --primary:#6c0fa3;--primary-hover:#550a7c;--primary-light:#922bd9;--primary-dark:#3b035f;--primary-soft:rgba(108,15,163,0.18);
+  --accent:#ffe600;--accent-hover:#e6cf00;--accent-soft:rgba(255,230,0,0.12);--accent-text:#14051d;
+  --bg-dark:#0a0310;--bg-grad-1:#12051c;--bg-grad-2:#1e0a2e;
+  --glass-bg:rgba(28, 12, 45, 0.72);--glass-border:rgba(255, 255, 255, 0.08);--glass-shine:rgba(255, 255, 255, 0.04);
+  --surface:#1c0d29;--surface-2:#140720;--surface-3:#29143d;--surface-hover:#341a4d;
+  --border:#3a1d59;--border-light:#4f2979;--border-strong:rgba(255,230,0,0.35);
+  --text:#fcfaff;--text-dim:#c2b1d9;--text-muted:#8d77aa;
+  --danger:#ff4d4d;--danger-hover:#e63939;--ok:#00e676;
+  --radius:18px;--radius-sm:12px;--radius-xs:8px;
+  --shadow-sm:0 4px 20px rgba(0,0,0,0.25);--shadow:0 8px 32px rgba(0,0,0,0.45);
+  --shadow-lg:0 20px 60px rgba(0,0,0,0.65);--shadow-accent:0 0 0 4px rgba(255,230,0,0.25);
+  --t-fast:0.2s cubic-bezier(0.16, 1, 0.3, 1);--t:0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{
+  background:
+    radial-gradient(circle at 10% 10%, rgba(108,15,163,0.4) 0%, transparent 50%),
+    radial-gradient(circle at 90% 90%, rgba(255,230,0,0.06) 0%, transparent 60%),
+    linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+  background-attachment:fixed;color:var(--text);min-height:100vh;font-size:14.5px;line-height:1.6;
+}
+.hidden{display:none!important}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 15px rgba(255,230,0,0.2)}50%{box-shadow:0 0 30px rgba(255,230,0,0.4)}}
+
+.card{
+  background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:var(--radius);padding:24px;border:1px solid var(--glass-border);
+  box-shadow:var(--shadow);transition:all var(--t);position:relative;overflow:hidden;
+  animation:fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--glass-shine),transparent);
+}
+.card:hover{border-color:var(--border-light);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+
+.btn{
+  background:linear-gradient(135deg,var(--primary-light) 0%,var(--primary) 100%);color:#fff;border:none;
+  padding:13px 22px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:700;
+  letter-spacing:0.3px;transition:all var(--t);box-shadow:0 4px 16px rgba(108,15,163,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,0.12),transparent);opacity:0;transition:opacity var(--t-fast)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(108,15,163,0.65),inset 0 1px 0 rgba(255,255,255,0.3)}
+.btn:hover::after{opacity:1}
+.btn:active{transform:translateY(0)}
+.btn:focus-visible{outline:none;box-shadow:var(--shadow-accent)}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important;box-shadow:none}
+
+.btn.sec{
+  background:rgba(41,20,61,0.7);color:var(--text);border:1px solid var(--border);
+  box-shadow:0 4px 14px rgba(0,0,0,0.3);backdrop-filter:blur(8px);
+}
+.btn.sec:hover{background:var(--surface-hover);border-color:var(--primary-light);color:var(--accent)}
+
+.btn.ok{
+  background:linear-gradient(135deg,var(--accent) 0%,#d9c200 100%);color:var(--accent-text);
+  box-shadow:0 4px 20px rgba(255,230,0,0.35),inset 0 1px 0 rgba(255,255,255,0.5);font-weight:800;
+}
+.btn.ok:hover{background:linear-gradient(135deg,#ffe933 0%,#c7b200 100%);box-shadow:0 6px 25px rgba(255,230,0,0.55)}
+
+.btn.danger{
+  background:linear-gradient(135deg,#ff6b6b 0%,var(--danger) 100%);box-shadow:0 4px 16px rgba(255,77,77,0.35);
+}
+.btn.danger:hover{background:linear-gradient(135deg,#ff5252 0%,var(--danger-hover) 100%)}
+
+input,select,textarea{
+  width:100%;padding:13px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:rgba(20,7,32,0.85);color:var(--text);font-size:15px;margin-top:6px;
+  transition:all var(--t);font-family:inherit;backdrop-filter:blur(6px);
+}
+input::placeholder,textarea::placeholder{color:var(--text-muted)}
+input:hover,select:hover,textarea:hover{border-color:var(--border-light)}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--accent);background:rgba(35,14,56,0.95);
+  box-shadow:var(--shadow-accent);transform:translateY(-1px);
+}
+input:disabled,select:disabled{opacity:0.6;cursor:not-allowed}
+
+select{
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffe600' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:42px;
+}
+select option{background:var(--surface);color:var(--text);padding:10px}
+label{font-size:12.5px;color:var(--text-dim);display:block;margin-top:16px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+label .hint{text-transform:none;font-weight:400;letter-spacing:0;color:var(--text-muted);font-size:11.5px}
+
+h1,h2,h3{color:var(--accent);font-weight:800;letter-spacing:-0.5px}
+h1{text-align:center;font-size:28px;margin-bottom:6px}
+h2{font-size:20px;margin-bottom:8px;position:relative;padding-bottom:10px}
+h2::after{
+  content:'';position:absolute;bottom:0;left:0;width:56px;height:3px;
+  background:linear-gradient(90deg,var(--accent) 0%,var(--primary) 100%);border-radius:2px;
+}
+h3{font-size:16px}
+h4.section-title{
+  font-size:12.5px;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;
+  margin:24px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border-light);font-weight:800;
+}
+.sub{text-align:center;color:var(--text-dim);font-size:13.5px;margin-bottom:24px;letter-spacing:0.3px}
+.small{font-size:12px;color:var(--text-dim);letter-spacing:0.2px}
+.tot{font-weight:800;color:var(--accent);font-size:18px;letter-spacing:-0.2px}
+.link{color:var(--accent);cursor:pointer;font-size:13.5px;font-weight:600;transition:all var(--t)}
+.link:hover{color:#fff;text-shadow:0 0 12px rgba(255,230,0,0.6)}
+
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:8px;background:rgba(20,7,32,0.85);
+  backdrop-filter:blur(12px);border-radius:var(--radius-sm);border:1px solid var(--border);
+  width:100%;max-width:100%;margin-bottom:24px;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  background:transparent;padding:10px 18px;border-radius:var(--radius-xs);cursor:pointer;
+  font-size:13px;font-weight:700;color:var(--text-dim);transition:all var(--t);
+  letter-spacing:0.3px;border:none;white-space:nowrap;flex-shrink:0;
+}
+.tab:hover{color:var(--text);background:var(--surface-3)}
+.tab.active{
+  background:linear-gradient(135deg,var(--accent) 0%,#d9c200 100%);color:var(--accent-text);
+  box-shadow:0 4px 16px rgba(255,230,0,0.3);
+}
+.tab .count{
+  display:inline-block;margin-left:6px;background:var(--danger);color:#fff;
+  font-size:10px;font-weight:800;padding:1px 7px;border-radius:10px;min-width:18px;text-align:center;
+}
+.tab.active .count{background:var(--accent-text);color:var(--accent)}
+
+.topbar{
+  background:rgba(18, 5, 28, 0.85);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  padding:12px 20px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--glass-border);flex-wrap:wrap;gap:12px;
+  box-shadow:0 4px 30px rgba(0,0,0,0.4);position:sticky;top:0;z-index:50;
+}
+.topbar-brand{display:flex;align-items:center;gap:14px}
+.topbar-logo{width:110px;flex-shrink:0;display:block}
+.topbar-logo img{width:100%;height:auto;display:block;border-radius:8px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5))}
+.topbar-user{display:flex;align-items:center;gap:12px}
+.topbar-user-info{display:flex;flex-direction:column;gap:1px;text-align:right}
+.topbar-user-info .name{font-size:13px;font-weight:700;color:var(--text)}
+.topbar-user-info .meta{font-size:11px;color:var(--text-dim);letter-spacing:0.2px}
+.topbar-avatar{
+  width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--accent);
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(255,230,0,0.25);
+}
+.topbar-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.topbar-avatar .initial{font-size:16px;font-weight:800;color:var(--accent);text-transform:uppercase}
+
+.photo-upload{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.photo-preview{
+  width:120px;height:150px;border-radius:var(--radius-sm);background:rgba(20,7,32,0.9);
+  border:2px dashed var(--border-light);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;flex-shrink:0;transition:all var(--t);box-shadow:inset 0 2px 10px rgba(0,0,0,0.4);
+}
+.photo-preview.has-photo{border-style:solid;border-color:var(--accent);box-shadow:0 6px 20px rgba(255,230,0,0.25)}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.photo-placeholder{color:var(--text-muted);font-size:11px;text-align:center;padding:10px;line-height:1.4}
+.photo-actions{display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px}
+.photo-actions .btn{width:100%;padding:10px 16px;font-size:13px}
+.photo-hint{font-size:11px;color:var(--text-muted);line-height:1.4;margin-top:2px}
+
+.badge{
+  background:var(--primary-soft);color:var(--accent);border:1px solid var(--border-strong);
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:0.5px;
+  text-transform:uppercase;width:fit-content;display:inline-flex;align-items:center;gap:6px;
+}
+.badge.green{background:rgba(0,230,118,0.12);color:#3ccf8e;border-color:rgba(60,207,142,0.35)}
+.badge.red{background:rgba(255,77,77,0.12);color:#ff8585;border-color:rgba(255,77,77,0.35)}
+.badge.master{
+  background:linear-gradient(135deg,var(--accent) 0%,#d9c200 100%);color:var(--accent-text);
+  border-color:var(--accent);box-shadow:0 2px 10px rgba(255,230,0,0.25);
+}
+.badge.warn{background:rgba(255,193,7,0.14);color:#ffc107;border-color:rgba(255,193,7,0.4)}
+
+.container{max-width:1150px;margin:0 auto;padding:20px 16px}
+.grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.grid3{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
+@media(max-width:900px){.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.grid,.grid3{grid-template-columns:1fr}}
+
+.section{margin-top:20px}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sp{justify-content:space-between}
+
+.table-responsive{width:100%;overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:16px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:rgba(20,7,32,0.95);color:var(--accent);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
+td{background:rgba(28,12,41,0.65);backdrop-filter:blur(4px)}
+tr:last-child td{border-bottom:none}
+tr.clickable{cursor:pointer;transition:all var(--t-fast)}
+tr.clickable:hover td{background:rgba(52,26,77,0.85);color:var(--accent)}
+
+.modal-bg{
+  position:fixed;inset:0;background:rgba(10,3,16,0.82);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;
+  z-index:999;padding:16px;animation:fadeInUp 0.25s cubic-bezier(0.16,1,0.3,1) both;
+}
+.modal{
+  background:linear-gradient(145deg,rgba(28,12,41,0.95) 0%,rgba(20,7,32,0.98) 100%);
+  border-radius:var(--radius);padding:24px;max-width:850px;width:100%;max-height:90vh;
+  overflow-y:auto;border:1px solid var(--border-light);box-shadow:var(--shadow-lg);
+  animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+}
+@media(max-width:600px){.modal{padding:18px;max-height:95vh}}
+
+.state-item{
+  display:flex;justify-content:space-between;padding:13px 16px;background:rgba(20,7,32,0.7);
+  border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;align-items:center;
+  border:1px solid var(--border);transition:all var(--t);font-size:13.5px;
+}
+.state-item:hover{
+  background:rgba(41,20,61,0.9);border-color:var(--primary-light);transform:translateX(4px);
+  box-shadow:0 4px 15px rgba(108,15,163,0.3);
+}
+.collapse-body{
+  padding:14px 16px;background:rgba(15,5,25,0.85);border-radius:var(--radius-sm);
+  margin-bottom:10px;border:1px solid var(--border);border-left:3px solid var(--accent);
+}
+
+.login-wrap{max-width:480px;margin:4vh auto;padding:16px;animation:fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both}
+.login-logo{width:100%;max-width:240px;margin:0 auto 16px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.6))}
+.login-logo img{width:100%;height:auto;display:block;border-radius:12px}
+
+.field{position:relative}
+.pw-toggle{
+  position:absolute;right:14px;top:38px;cursor:pointer;font-size:11.5px;color:var(--accent);
+  font-weight:800;user-select:none;letter-spacing:0.5px;text-transform:uppercase;
+  transition:all var(--t-fast);background:none;border:none;padding:4px;
+}
+.pw-toggle:hover{color:#fff;text-shadow:0 0 10px rgba(255,230,0,0.6)}
+
+.success-box{
+  padding:20px;background:linear-gradient(135deg,rgba(41,20,61,0.9) 0%,rgba(20,7,32,0.95) 100%);
+  border-radius:var(--radius-sm);text-align:center;border:1px solid var(--border-light);
+  border-left:4px solid var(--accent);box-shadow:var(--shadow-sm);animation:fadeInUp 0.3s ease;
+}
+.batch-tag{
+  font-size:11px;color:var(--accent);font-weight:800;margin-bottom:10px;letter-spacing:1px;
+  text-transform:uppercase;padding:5px 12px;background:var(--accent-soft);border-radius:20px;
+  display:inline-block;border:1px solid rgba(255,230,0,0.25);
+}
+.readonly-banner{
+  padding:13px 16px;border-left:3px solid var(--accent);background:rgba(20,7,32,0.8);
+  border-radius:var(--radius-sm);font-size:12.5px;line-height:1.5;color:var(--text-dim);margin-top:14px;
+}
+.readonly-banner b{color:var(--accent)}
+
+.print-area{padding:20px;background:#fff;color:#000;display:none}
+@media print{
+  body *{visibility:hidden}
+  .print-area,.print-area *{visibility:visible}
+  .print-area{display:block!important;position:absolute;left:0;top:0;width:100%}
+}
+
+#toasts{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:340px;width:100%}
+.toast{
+  padding:12px 16px;border-radius:10px;background:rgba(28,12,41,0.95);backdrop-filter:blur(12px);
+  border:1px solid var(--border-light);box-shadow:var(--shadow-lg);font-size:13px;
+  animation:fadeInUp 0.25s cubic-bezier(0.16,1,0.3,1) both;pointer-events:auto;color:var(--text);
+}
+.toast.ok{border-left:3px solid var(--accent)}
+.toast.err{border-left:3px solid var(--danger)}
+.toast.info{border-left:3px solid var(--primary-light)}
+
+.loader{
+  display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;
+  vertical-align:-2px;margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:480px){
+  .topbar-logo{width:80px}
+  .topbar{padding:10px 14px;gap:8px}
+  .topbar-user{gap:8px}
+  .topbar-avatar{width:38px;height:38px}
+  .topbar-user-info .name{font-size:11.5px}
+  .topbar-user-info .meta{font-size:10px}
+  .card{padding:16px}
+}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface-2)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--primary-light)}
+::selection{background:var(--accent);color:var(--accent-text)}
+
+.detail-grid{display:grid;grid-template-columns:160px 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-top:14px}
+@media(max-width:550px){.detail-grid{grid-template-columns:1fr}}
+.detail-grid .k{background:rgba(20,7,32,0.85);padding:10px 14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.6px;color:var(--accent);border-bottom:1px solid var(--border)}
+.detail-grid .v{background:rgba(28,12,41,0.5);padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+.detail-photo{width:130px;height:165px;object-fit:cover;border-radius:8px;border:2px solid var(--accent);box-shadow:0 4px 16px rgba(255,230,0,0.2)}
+
+.mep-num-preview{
+  display:inline-block;padding:8px 14px;background:rgba(255,230,0,0.08);
+  border:1px dashed rgba(255,230,0,0.5);border-radius:8px;font-family:'Courier New',monospace;
+  font-size:15px;font-weight:800;color:var(--accent);letter-spacing:1px;margin-top:6px;
+}
+.mep-num-preview.pending{opacity:0.55;font-style:italic}
+
+.aprob-box{
+  padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:rgba(20,7,32,0.7);margin-top:14px;
+}
+.aprob-box.aprobado{border-color:rgba(60,207,142,0.4);background:rgba(0,230,118,0.06)}
+.aprob-box.rechazado{border-color:rgba(255,77,77,0.4);background:rgba(255,77,77,0.06)}
+.aprob-box.pendiente{border-color:rgba(255,193,7,0.4);background:rgba(255,193,7,0.06)}
+.aprob-meta{font-size:11.5px;color:var(--text-muted);margin-top:6px;line-height:1.4}
+.aprob-meta b{color:var(--text-dim)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
+<div class="print-area" id="printArea"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — JMEP
+============================================================ */
+const CONFIG = {
+  USE_POCKETBASE: true,
+  PB_URL: 'https://pocketbase-railway-production-276e.up.railway.app',
+  COL: { USERS:'users', RECORDS:'records', HISTORY:'history', ACTIVE:'active' },
+  MIN_BATCH: 3,
+  MAX_BATCH: 12,
+  MAX_FILE_SIZE: 1.5 * 1024 * 1024,
+  IMG_MAX_WIDTH: 800,
+  IMG_QUALITY: 0.72,
+  HISTORY_TTL_MS: 30 * 24 * 60 * 60 * 1000,
+  ACTIVE_TTL_MS: 5 * 60 * 1000,
+  LOGO_SRC: 'logo.png',
+  POLITICAS_TEXTO: 'Bienvenido a la Juventud del Movimiento Electoral del Pueblo (JMEP). Sus datos serán tratados de acuerdo a las normas venezolanas vigentes. Mantenga su información actualizada.',
+  MAX_NACIONALES: 10,
+  MAX_JMEP_RETRY: 5
+};
+
+/* ============================================================
+   ESTADOS Y MUNICIPIOS
+============================================================ */
+const ESTADOS = {
+  "Amazonas":["Alto Orinoco","Atabapo","Atures","Autana","Manapiare","Maroa","Río Negro"],
+  "Anzoátegui":["Anaco","Aragua","Bolívar","Bruzual","Cajigal","Carvajal","Diego Bautista Urbaneja","Fernando de Peñalver","Francisco del Carmen Carvajal","Francisco de Miranda","Guanta","Independencia","José Gregorio Monagas","Juan Antonio Sotillo","Juan Manuel Cajigal","Libertad","Manuel Ezequiel Bruzual","Pedro María Freites","Píritu","San José de Guanipa","San Juan de Capistrano","Santa Ana","Simón Bolívar","Simón Rodríguez","Sir Arthur McGregor"],
+  "Apure":["Achaguas","Biruaca","Muñoz","Páez","Pedro Camejo","Rómulo Gallegos","San Fernando"],
+  "Aragua":["Bolívar","Camatagua","Francisco Linares Alcántara","Girardot","José Ángel Lamas","José Félix Ribas","José Rafael Revenga","Libertador","Mario Briceño Iragorry","Ocumare de la Costa de Oro","San Casimiro","San Sebastián","Santiago Mariño","Santos Michelena","Sucre","Tovar","Urdaneta","Zamora"],
+  "Barinas":["Alberto Arvelo Torrealba","Andrés Eloy Blanco","Antonio José de Sucre","Arismendi","Barinas","Bolívar","Cruz Paredes","Ezequiel Zamora","Obispos","Pedraza","Rojas","Sosa"],
+  "Bolívar":["Caroní","Cedeño","El Callao","Gran Sabana","Heres","Angostura","Piar","Roscio","Sifontes","Sucre","Padre Pedro Chien"],
+  "Carabobo":["Bejuma","Carlos Arvelo","Diego Ibarra","Guacara","Juan José Mora","Libertador","Los Guayos","Miranda","Montalbán","Naguanagua","Puerto Cabello","San Diego","San Joaquín","Valencia"],
+  "Cojedes":["Anzoátegui","Falcón","Girardot","Lima Blanco","Pao de San Juan Bautista","Ricaurte","Rómulo Gallegos","San Carlos","Tinaquillo"],
+  "Delta Amacuro":["Antonio Díaz","Casacoima","Pedernales","Tucupita"],
+  "Distrito Capital":["Libertador"],
+  "Falcón":["Acosta","Bolívar","Buchivacoa","Cacique Manaure","Carirubana","Colina","Dabajuro","Democracia","Falcón","Federación","Jacura","Los Taques","Mauroa","Miranda","Monseñor Iturriza","Palmasola","Petit","Píritu","San Francisco","Silva","Sucre","Tocópero","Unión","Urumaco","Zamora"],
+  "Guárico":["Camaguán","Chaguaramas","El Socorro","Francisco de Miranda","José Félix Ribas","José Tadeo Monagas","Juan Germán Roscio","Julián Mellado","Las Mercedes","Leonardo Infante","Ortiz","Pedro Zaraza","San Gerónimo de Guayabal","San José de Guaribe","Santa María de Ipire"],
+  "Lara":["Andrés Eloy Blanco","Crespo","Iribarren","Jiménez","Morán","Palavecino","Simón Planas","Torres","Urdaneta"],
+  "Mérida":["Alberto Adriani","Andrés Bello","Antonio Pinto Salinas","Aricagua","Arzobispo Chacón","Campo Elías","Caracciolo Parra Olmedo","Cardenal Quintero","Guaraque","Julio César Salas","Justo Briceño","Libertador","Miranda","Obispo Ramos de Lora","Padre Noguera","Pueblo Llano","Rangel","Rivas Dávila","Santos Marquina","Sucre","Tovar","Tulio Febres Cordero","Zea"],
+  "Miranda":["Acevedo","Andrés Bello","Baruta","Brión","Buroz","Carrizal","Chacao","Cristóbal Rojas","El Hatillo","Guaicaipuro","Independencia","Lander","Los Salias","Páez","Paz Castillo","Pedro Gual","Plaza","Simón Bolívar","Sucre","Urdaneta","Zamora"],
+  "Monagas":["Acosta","Aguasay","Bolívar","Caripe","Cedeño","Ezequiel Zamora","Libertador","Maturín","Piar","Punceres","Santa Bárbara","Sotillo","Uracoa"],
+  "Nueva Esparta":["Antolín del Campo","Arismendi","Díaz","García","Gómez","Maneiro","Marcano","Mariño","Península de Macanao","Tubores","Villalba"],
+  "Portuguesa":["Agua Blanca","Araure","Esteller","Guanare","Guanarito","Monseñor José Vicente de Unda","Ospino","Páez","Papelón","San Genaro de Boconoíto","San Rafael de Onoto","Santa Rosalía","Sucre","Turén"],
+  "Sucre":["Andrés Eloy Blanco","Andrés Mata","Arismendi","Benítez","Bermúdez","Bolívar","Cajigal","Cruz Salmerón Acosta","Libertador","Mariño","Mejía","Montes","Ribero","Sucre","Valdez"],
+  "Táchira":["Andrés Bello","Antonio Rómulo Costa","Ayacucho","Bolívar","Cárdenas","Córdoba","Fernández Feo","Francisco de Miranda","García de Hevia","Guásimos","Independencia","Jáuregui","José María Vargas","Junín","Libertad","Libertador","Lobatera","Michelena","Panamericano","Pedro María Ureña","Rafael Urdaneta","Samuel Darío Maldonado","San Cristóbal","Seboruco","Simón Rodríguez","Sucre","Torbes","Uribante","San Judas Tadeo"],
+  "Trujillo":["Andrés Bello","Boconó","Bolívar","Candelaria","Carache","Escuque","José Felipe Márquez Cañizales","Juan Vicente Campo Elías","La Ceiba","Miranda","Monte Carmelo","Motatán","Pampán","Pampanito","Rafael Rangel","San Rafael de Carvajal","Sucre","Trujillo","Urdaneta","Valera"],
+  "La Guaira":["Caraballeda","Carayaca","Carlos Soublette","Caruao","Catia La Mar","El Junko","La Guaira","Macuto","Maiquetía","Naiguatá","Urimare"],
+  "Yaracuy":["Arístides Bastidas","Bolívar","Bruzual","Cocorote","Independencia","José Antonio Páez","La Trinidad","Manuel Monge","Nirgua","Peña","San Felipe","Sucre","Urachiche","Veroes"],
+  "Zulia":["Almirante Padilla","Baralt","Cabimas","Catatumbo","Colón","Francisco Javier Pulgar","Guajira","Jesús Enrique Lossada","Jesús María Semprún","La Cañada de Urdaneta","Lagunillas","Machiques de Perijá","Mara","Maracaibo","Miranda","Rosario de Perijá","San Francisco","Santa Rita","Simón Bolívar","Sucre","Valmore Rodríguez"],
+  "Guyana Esequiba":["Barima","Cuyuni","Mazaruni","Demerara","Berbice","Esequibo"]
+};
+
+/* ============================================================
+   LISTAS PARA JÓVENES
+============================================================ */
+const SEXOS = ['Masculino','Femenino'];
+const NIVELES_INSTRUCCION = ['Sin instrucción','Primaria','Secundaria','Técnico Medio','Universitario','Postgrado'];
+const OCUPACIONES = ['Estudiante','Trabajador','Estudiante y Trabajador','Desempleado','Emprendedor','Otro'];
+const SECTORES_ACTIVA = ['Estudiantil','Deportivo','Cultural','Comunitario','Político','Emprendedor','Trabajador','Ambiental','Religioso'];
+const APROBACION = { PENDIENTE:'pendiente', APROBADO:'aprobado', RECHAZADO:'rechazado' };
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function now(){ return Date.now(); }
+function uid(){ return 'id_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function fmtDate(ts){
+  if (!ts) return '—';
+  const d = isNaN(Number(ts)) ? new Date(ts) : new Date(Number(ts));
+  return isNaN(d.getTime()) ? '—' : d.toLocaleString('es-VE');
+}
+function normCI(ci){
+  let s = String(ci||'').trim().toUpperCase().replace(/[\s\.\-]/g,'');
+  if(!s) return '';
+  if(/^\d+$/.test(s)) return 'V-' + s;
+  if(/^[VEJPG]\d+$/.test(s)) return s[0] + '-' + s.slice(1);
+  return s;
+}
+function isValidCI(ci){ return /^[VEJPG]-\d{5,9}$/.test(normCI(ci)); }
+function isValidPhone(t){ return /^0\d{3}-?\d{7}$/.test(String(t||'').trim()); }
+function isValidEmail(e){ if(!e) return true; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function safeImgSrc(src){
+  if(typeof src !== 'string') return '';
+  if(src.startsWith('data:image/')) return src;
+  if(/^https?:\/\//i.test(src)) return src;
+  return '';
+}
+function devHash(pw){ let h=0; for(let i=0;i<pw.length;i++){ h=((h<<5)-h)+pw.charCodeAt(i); h|=0; } return 'h'+h; }
+
+function cleanAlpha(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z]/g,'').toUpperCase(); }
+function shortCode(s, len){ len = len || 4; let t = cleanAlpha(s); if(!t) return 'XXXX'; if(t.length < len) t = t.padEnd(len,'X'); return t.slice(0,len); }
+
+/* Numeración JMEP — Tipo Regional = JMEP-REG-{EST}-NNNN ; Municipal = JMEP-MUN-{MUN}-NNNN */
+function jmepPrefix(tipo, estado, municipio){
+  if(tipo === 'Regional') return 'JMEP-REG-' + shortCode(estado,4);
+  return 'JMEP-MUN-' + shortCode(municipio,4);
+}
+function jmepPreviewNumber(tipo, estado, municipio){
+  if(!tipo) return 'JMEP-____-____-____';
+  if(tipo === 'Regional' && !estado) return 'JMEP-REG-____-____';
+  if(tipo === 'Municipal' && (!estado || !municipio)) return 'JMEP-MUN-____-____';
+  const prefix = jmepPrefix(tipo, estado, municipio);
+  const n = parseInt(localStorage.getItem('jmep_counter_'+prefix) || '0', 10) + 1;
+  return prefix + '-' + String(n).padStart(4,'0');
+}
+function jmepReserveNumber(tipo, estado, municipio){
+  const prefix = jmepPrefix(tipo, estado, municipio);
+  const key = 'jmep_counter_'+prefix;
+  let n = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+  localStorage.setItem(key, String(n));
+  return prefix + '-' + String(n).padStart(4,'0');
+}
+function jmepRandomSuffix(){
+  return 'JMEP-EXT-' + Date.now().toString(36).toUpperCase().slice(-6) + '-' + Math.random().toString(36).slice(2,5).toUpperCase();
+}
+
+function toast(msg, type){
+  type = type || 'info';
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(), 300); }, 3200);
+}
+function ok(m){ toast(m,'ok'); } function err(m){ toast(m,'err'); } function info(m){ toast(m,'info'); }
+
+function compressImage(file, maxW, quality){
+  maxW = maxW || CONFIG.IMG_MAX_WIDTH;
+  quality = quality || CONFIG.IMG_QUALITY;
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+    r.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Imagen inválida.'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > maxW){ h = Math.round(h * maxW / w); w = maxW; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+/* ============================================================
+   CACHÉ DE FOTOS
+============================================================ */
+const photoCache = {};
+function clearPhotoCache(prefix){
+  if(!prefix){ Object.keys(photoCache).forEach(k => delete photoCache[k]); return; }
+  Object.keys(photoCache).forEach(k => { if(k.startsWith(prefix)) delete photoCache[k]; });
+}
+
+function photoFieldHTML(id){
+  return '<div class="photo-upload">' +
+    '<div class="photo-preview" id="pv_' + id + '"><span class="photo-placeholder">Sin foto<br><span style="font-size:10px">Tipo carnet</span></span></div>' +
+    '<div class="photo-actions">' +
+      '<button type="button" class="btn sec" data-action="triggerCamera" data-id="' + id + '">📷 Tomar foto</button>' +
+      '<button type="button" class="btn sec" data-action="triggerFile" data-id="' + id + '">📁 Elegir imagen</button>' +
+      '<div class="photo-hint">Foto frontal tipo carnet. Fondo claro. Se comprime automáticamente.</div>' +
+    '</div>' +
+    '<input type="file" accept="image/*" capture="environment" id="cam_' + id + '" style="display:none">' +
+    '<input type="file" accept="image/*" id="file_' + id + '" style="display:none">' +
+  '</div>';
+}
+
+async function handlePhotoInput(input, id){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  if(!/^image\//.test(file.type)) return err('El archivo no es una imagen.');
+  if(file.size > 10 * 1024 * 1024) return err('Imagen demasiado grande (máx 10 MB).');
+  try{
+    const dataUrl = await compressImage(file);
+    const pv = document.getElementById('pv_' + id);
+    if(pv){ pv.innerHTML = '<img src="' + dataUrl + '" alt="foto">'; pv.classList.add('has-photo'); }
+    photoCache[id] = { file, dataUrl };
+  }catch(e){ err('Error al procesar la imagen.'); }
+  finally{ input.value = ''; }
+}
+
+/* ============================================================
+   PERMISOS Y ROLES — JMEP
+============================================================ */
+const Roles = { MASTER:'Master', NACIONAL:'Nacional', REGIONAL:'Regional', MUNICIPAL:'Municipal' };
+const Permissions = {
+  isMaster(u){ return !!u && u.rol === Roles.MASTER; },
+  isNacional(u){ return !!u && u.rol === Roles.NACIONAL; },
+  isOperativo(u){ return !!u && (u.rol === Roles.REGIONAL || u.rol === Roles.MUNICIPAL); },
+  isApprover(u){ return !!u && u.rol === Roles.NACIONAL && !!u.es_aprobador; },
+  canSeeNacionalesTab(u){ return Permissions.isMaster(u); },
+  canSeeAprobacionesTab(u){ return Permissions.isMaster(u) || Permissions.isApprover(u); },
+  creatableRoles(u){
+    if(Permissions.isMaster(u))   return [Roles.NACIONAL, Roles.REGIONAL, Roles.MUNICIPAL];
+    if(Permissions.isNacional(u)) return [Roles.REGIONAL, Roles.MUNICIPAL];
+    return [];
+  },
+  canCreateRole(u, rol){ return Permissions.creatableRoles(u).includes(rol); },
+  canManageUser(actor, target){
+    if(!actor || !target) return false;
+    if(actor.id === target.id) return false;
+    if(target.rol === Roles.MASTER) return false;
+    if(Permissions.isMaster(actor))   return [Roles.NACIONAL, Roles.REGIONAL, Roles.MUNICIPAL].includes(target.rol);
+    if(Permissions.isNacional(actor)) return [Roles.REGIONAL, Roles.MUNICIPAL].includes(target.rol);
+    return false;
+  },
+  canToggleAprobador(actor, target){
+    return Permissions.isMaster(actor) && target && target.rol === Roles.NACIONAL;
+  },
+  canApprove(actor){
+    return Permissions.isMaster(actor) || Permissions.isApprover(actor);
+  }
+};
+
+/* ============================================================
+   ALMACENAMIENTO LOCAL Y POCKETBASE
+============================================================ */
+const DB = {
+  get(k, def){ try{ const v = localStorage.getItem('jmep_'+k); return v ? JSON.parse(v) : def; }catch(e){ return def; } },
+  set(k, v){
+    try{ localStorage.setItem('jmep_'+k, JSON.stringify(v)); }
+    catch(e){ if(e && e.name === 'QuotaExceededError') err('Almacenamiento local lleno.'); throw e; }
+  },
+  remove(k){ localStorage.removeItem('jmep_'+k); }
+};
+
+let pb = null;
+let pbLoad = Promise.resolve();
+if(CONFIG.USE_POCKETBASE){
+  pbLoad = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/pocketbase@0.21.3/dist/pocketbase.umd.js';
+    s.onload = () => { try{ pb = new PocketBase(CONFIG.PB_URL); pb.autoCancellation(false); resolve(); }catch(e){ reject(e); } };
+    s.onerror = () => reject(new Error('No se pudo cargar PocketBase SDK.'));
+    document.head.appendChild(s);
+  });
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function isAuthError(e){
+  return e && (e.status === 401 || e.status === 403) && !!(e.message && /auth|token|unauth|forbidden|credentials/i.test(e.message));
+}
+function userSessionFromRecord(u){
+  return {
+    id:u.id, nombre:u.nombre, apellido:u.apellido, ci:u.ci, telefono:u.telefono,
+    rol:u.rol, estado:u.estado||'', municipio:u.municipio||'',
+    foto: u.foto ? (typeof u.foto === 'string' ? u.foto : (pb ? pb.files.getUrl(u, u.foto) : '')) : '',
+    es_aprobador: !!u.es_aprobador,
+    aprobado: !!u.aprobado
+  };
+}
+
+/* ============================================================
+   API
+============================================================ */
+const Api = {
+  async login(ci, pw){
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      const auth = await pb.collection(CONFIG.COL.USERS).authWithPassword(normCI(ci), pw);
+      const u = auth.record;
+      const sess = userSessionFromRecord(u);
+      await Api.history.log(sess);
+      return sess;
+    }
+    const users = DB.get('users', []);
+    const u = users.find(x => normCI(x.ci) === normCI(ci) && x.password === devHash(pw));
+    if(!u) throw new Error('Credenciales inválidas.');
+    const sess = userSessionFromRecord(u);
+    DB.set('session', sess);
+    await Api.history.log(sess);
+    return sess;
+  },
+  async register(data, actor){
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      const fd = new FormData();
+      ['nombre','apellido','telefono','rol','estado','municipio'].forEach(k => fd.append(k, data[k]||''));
+      fd.append('ci', normCI(data.ci));
+      fd.append('username', normCI(data.ci));
+      fd.append('password', data.password);
+      fd.append('passwordConfirm', data.password);
+      fd.append('email', data.email || (normCI(data.ci).toLowerCase().replace(/[^a-z0-9]/g,'')+'@jmep.local'));
+      fd.append('es_aprobador', data.es_aprobador ? true : false);
+      fd.append('aprobado', false);
+      if(data._fotoFile) fd.append('foto', data._fotoFile);
+      const rec = await pb.collection(CONFIG.COL.USERS).create(fd);
+      return userSessionFromRecord(rec);
+    }
+    const users = DB.get('users', []);
+    if(users.some(u => normCI(u.ci) === normCI(data.ci))) throw new Error('Ya existe un usuario con esa cédula.');
+    const u = {
+      id: uid(), nombre:data.nombre, apellido:data.apellido, ci:normCI(data.ci),
+      telefono:data.telefono, rol:data.rol, estado:data.estado||'', municipio:data.municipio||'',
+      foto: data.foto || '', password: devHash(data.password),
+      es_aprobador: !!data.es_aprobador, aprobado: false, created: now()
+    };
+    users.push(u); DB.set('users', users);
+    return u;
+  },
+  async logout(){
+    if(CONFIG.USE_POCKETBASE && pb) pb.authStore.clear();
+    DB.remove('session');
+  },
+  async recover(ci, tel, nueva){
+    if(CONFIG.USE_POCKETBASE) throw new Error('En producción la recuperación es por email.');
+    const users = DB.get('users', []);
+    const u = users.find(x => normCI(x.ci) === normCI(ci) && x.telefono === tel);
+    if(!u) throw new Error('No coincide la cédula y el teléfono.');
+    u.password = devHash(nueva); DB.set('users', users);
+  },
+  async changePassword(actor, targetId, nueva){
+    const target = (await Api.listUsers()).find(u => u.id === targetId);
+    if(!target) throw new Error('Usuario no encontrado.');
+    if(!Permissions.canManageUser(actor, target)) throw new Error('No tenés permisos para cambiar esta contraseña.');
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      await pb.collection(CONFIG.COL.USERS).update(targetId, { password:nueva, passwordConfirm:nueva });
+      return;
+    }
+    const users = DB.get('users', []);
+    const u = users.find(x => x.id === targetId);
+    if(u){ u.password = devHash(nueva); DB.set('users', users); }
+  },
+  async deleteUser(actor, targetId){
+    const target = (await Api.listUsers()).find(u => u.id === targetId);
+    if(!target) throw new Error('Usuario no encontrado.');
+    if(!Permissions.canManageUser(actor, target)) throw new Error('No tenés permisos para eliminar este usuario.');
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      await pb.collection(CONFIG.COL.USERS).delete(targetId);
+      return;
+    }
+    DB.set('users', DB.get('users', []).filter(x => x.id !== targetId));
+  },
+  async listUsers(){
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      const r = await pb.collection(CONFIG.COL.USERS).getFullList({ sort:'-created' });
+      return r.map(userSessionFromRecord);
+    }
+    return DB.get('users', []);
+  },
+  async toggleAprobador(actor, targetId, value){
+    if(!Permissions.isMaster(actor)) throw new Error('Solo el Master puede designar aprobadores.');
+    const target = (await Api.listUsers()).find(u => u.id === targetId);
+    if(!target) throw new Error('Usuario no encontrado.');
+    if(target.rol !== Roles.NACIONAL) throw new Error('Solo usuarios Nacionales pueden ser aprobadores.');
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      await pb.collection(CONFIG.COL.USERS).update(targetId, { es_aprobador: !!value });
+      return;
+    }
+    const users = DB.get('users', []);
+    const u = users.find(x => x.id === targetId);
+    if(u){ u.es_aprobador = !!value; DB.set('users', users); }
+  },
+  async validateSession(sess){
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      if(!pb.authStore.isValid) return null;
+      const u = pb.authStore.record || pb.authStore.model;
+      if(!u) return null;
+      return userSessionFromRecord(u);
+    }
+    if(!sess || !sess.id) return null;
+    const u = DB.get('users', []).find(x => x.id === sess.id);
+    if(!u) return null;
+    return userSessionFromRecord(u);
+  },
+  async saveRecord(rec){
+    const base = {
+      ...rec,
+      aprobacion: rec.aprobacion || APROBACION.PENDIENTE,
+      aprobado_por: rec.aprobado_por || '',
+      aprobado_por_nombre: rec.aprobado_por_nombre || '',
+      aprobado_en: rec.aprobado_en || 0,
+      rechazado_motivo: rec.rechazado_motivo || ''
+    };
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      const fd = new FormData();
+      Object.keys(base).forEach(k => {
+        if(k.startsWith('_') || k === 'foto' || k === 'created' || k === 'updated') return;
+        fd.append(k, base[k] ?? '');
+      });
+      if(base._file) fd.append('foto', base._file);
+      return await pb.collection(CONFIG.COL.RECORDS).create(fd);
+    }
+    const all = DB.get('records', []);
+    all.push({ id: uid(), ...base, created: now() });
+    DB.set('records', all);
+  },
+  async listRecords(filter){
+    filter = filter || {};
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      const parts = [];
+      if(filter.tipo) parts.push(`tipo="${filter.tipo}"`);
+      if(filter.estado) parts.push(`estado="${filter.estado}"`);
+      if(filter.municipio) parts.push(`municipio="${filter.municipio}"`);
+      if(filter.aprobacion) parts.push(`aprobacion="${filter.aprobacion}"`);
+      const opts = parts.length ? { filter: parts.join(' && '), sort:'-created' } : { sort:'-created' };
+      const list = await pb.collection(CONFIG.COL.RECORDS).getFullList(opts);
+      return list.map(r => ({ ...r, aprobacion: r.aprobacion || APROBACION.PENDIENTE, foto: r.foto ? pb.files.getUrl(r, r.foto) : '' }));
+    }
+    let r = DB.get('records', []);
+    if(filter.tipo) r = r.filter(x => x.tipo === filter.tipo);
+    if(filter.estado) r = r.filter(x => x.estado === filter.estado);
+    if(filter.municipio) r = r.filter(x => x.municipio === filter.municipio);
+    if(filter.aprobacion) r = r.filter(x => (x.aprobacion || APROBACION.PENDIENTE) === filter.aprobacion);
+    return r.map(x => ({ ...x, aprobacion: x.aprobacion || APROBACION.PENDIENTE }));
+  },
+  async existsCI(ci){
+    const target = normCI(ci);
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      try{ await pb.collection(CONFIG.COL.RECORDS).getFirstListItem(`ci="${target}"`); return true; }
+      catch(e){ if(e && e.status === 404) return false; throw e; }
+    }
+    return DB.get('records', []).some(r => normCI(r.ci) === target);
+  },
+  async existsNumero(numero){
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      try{ await pb.collection(CONFIG.COL.RECORDS).getFirstListItem(`numero="${numero}"`); return true; }
+      catch(e){ if(e && e.status === 404) return false; throw e; }
+    }
+    return DB.get('records', []).some(r => r.numero === numero);
+  },
+  async aprobarRecord(actor, id, nota){
+    if(!Permissions.canApprove(actor)) throw new Error('No tenés permisos para aprobar registros.');
+    const data = {
+      aprobacion: APROBACION.APROBADO,
+      aprobado_por: actor.id,
+      aprobado_por_nombre: (actor.nombre||'') + ' ' + (actor.apellido||''),
+      aprobado_en: now(),
+      rechazado_motivo: nota || ''
+    };
+    if(CONFIG.USE_POCKETBASE){ await pbLoad; await pb.collection(CONFIG.COL.RECORDS).update(id, data); return; }
+    const all = DB.get('records', []);
+    const r = all.find(x => x.id === id);
+    if(!r) throw new Error('Registro no encontrado.');
+    Object.assign(r, data); DB.set('records', all);
+  },
+  async rechazarRecord(actor, id, motivo){
+    if(!Permissions.canApprove(actor)) throw new Error('No tenés permisos para rechazar registros.');
+    const m = String(motivo||'').trim();
+    if(m.length < 5) throw new Error('Debe indicar el motivo del rechazo (mínimo 5 caracteres).');
+    const data = {
+      aprobacion: APROBACION.RECHAZADO,
+      aprobado_por: actor.id,
+      aprobado_por_nombre: (actor.nombre||'') + ' ' + (actor.apellido||''),
+      aprobado_en: now(),
+      rechazado_motivo: m
+    };
+    if(CONFIG.USE_POCKETBASE){ await pbLoad; await pb.collection(CONFIG.COL.RECORDS).update(id, data); return; }
+    const all = DB.get('records', []);
+    const r = all.find(x => x.id === id);
+    if(!r) throw new Error('Registro no encontrado.');
+    Object.assign(r, data); DB.set('records', all);
+  },
+  async aprobarUsuario(id){
+    if(!Permissions.isMaster(state.user)) throw new Error('Solo el Master puede aprobar usuarios.');
+    if(CONFIG.USE_POCKETBASE){
+      await pbLoad;
+      await pb.collection(CONFIG.COL.USERS).update(id, { aprobado: true });
+      return;
+    }
+  },
+  nextJmepNumber(tipo, estado, municipio){ return jmepReserveNumber(tipo, estado, municipio); },
+  previewJmepNumber(tipo, estado, municipio){ return jmepPreviewNumber(tipo, estado, municipio); },
+  history: {
+    async log(u){
+      const entry = { userId:u.id, nombre:(u.nombre||'')+' '+(u.apellido||''), rol:u.rol, estado:u.estado||'', municipio:u.municipio||'', ts: now() };
+      if(CONFIG.USE_POCKETBASE){
+        await pbLoad;
+        try{ await pb.collection(CONFIG.COL.HISTORY).create(entry); }catch(e){ console.warn('history.log', e); }
+        return;
+      }
+      const h = DB.get('history', []);
+      h.push({ id: uid(), ...entry }); DB.set('history', h);
+    },
+    async purge(){
+      if(CONFIG.USE_POCKETBASE) return;
+      const cutoff = now() - CONFIG.HISTORY_TTL_MS;
+      DB.set('history', DB.get('history', []).filter(x => Number(x.ts) >= cutoff));
+    },
+    async list(filtro){
+      const cutoff = filtro === 'semana' ? now() - 7*24*60*60*1000 : filtro === 'mes' ? now() - CONFIG.HISTORY_TTL_MS : 0;
+      if(CONFIG.USE_POCKETBASE){
+        await pbLoad;
+        let filter = '';
+        if(filtro === 'hoy'){ const d = new Date(); d.setHours(0,0,0,0); filter = `ts >= ${d.getTime()}`; }
+        else if(cutoff){ filter = `ts >= ${cutoff}`; }
+        const opts = { sort:'-ts' }; if(filter) opts.filter = filter;
+        const list = await pb.collection(CONFIG.COL.HISTORY).getFullList(opts);
+        return list.map(x => ({ ...x, ts: Number(x.ts)||0 }));
+      }
+      return DB.get('history', []).filter(x => {
+        const ts = Number(x.ts) || 0;
+        if(filtro === 'hoy') return new Date(ts).toDateString() === new Date().toDateString();
+        if(cutoff) return ts >= cutoff;
+        return true;
+      }).sort((a,b) => (Number(b.ts)||0) - (Number(a.ts)||0));
+    }
+  },
+  active: {
+    async touch(u){
+      if(CONFIG.USE_POCKETBASE){
+        await pbLoad;
+        const display = (u.nombre||'') + ' ' + (u.apellido||'');
+        try{
+          const existing = await pb.collection(CONFIG.COL.ACTIVE).getFirstListItem(`userId="${u.id}"`);
+          await pb.collection(CONFIG.COL.ACTIVE).update(existing.id, { ts: now(), nombre: display, rol: u.rol });
+        }catch(e){
+          if(e && e.status === 404){
+            try{ await pb.collection(CONFIG.COL.ACTIVE).create({ userId: u.id, nombre: display, rol: u.rol, ts: now() }); }
+            catch(e2){ console.warn('active.touch create', e2); }
+          } else console.warn('active.touch', e);
+        }
+        return;
+      }
+      const a = DB.get('active', {});
+      a[u.id] = { id:u.id, nombre:(u.nombre||'')+' '+(u.apellido||''), rol:u.rol, ts: now() };
+      const cutoff = now() - CONFIG.ACTIVE_TTL_MS;
+      Object.keys(a).forEach(k => { if((a[k].ts||0) < cutoff) delete a[k]; });
+      DB.set('active', a);
+    },
+    async list(){
+      if(CONFIG.USE_POCKETBASE){
+        await pbLoad;
+        try{
+          const cutoff = now() - CONFIG.ACTIVE_TTL_MS;
+          return await pb.collection(CONFIG.COL.ACTIVE).getFullList({ filter:`ts >= ${cutoff}`, sort:'-ts' });
+        }catch(e){ return []; }
+      }
+      const a = DB.get('active', {});
+      const cutoff = now() - CONFIG.ACTIVE_TTL_MS;
+      return Object.values(a).filter(x => (x.ts||0) > cutoff);
+    }
+  }
+};
+
+/* ============================================================
+   ESTADO GLOBAL
+============================================================ */
+const state = {
+  view:'login', tab:null, user:null,
+  batchTipo:null, batchCount:0,
+  histFiltro:'hoy', busy:false,
+  userTab:'pendientes',
+  registerRole:null,
+  approvalFilter:'pendiente', approvalEstado:'', approvalMunicipio:''
+};
+const app = document.getElementById('app');
+
+function getLogoSrc(){
+  try{
+    const custom = DB.get('custom_logo', null);
+    if(custom && typeof custom === 'string' && custom.startsWith('data:image/')) return custom;
+  }catch(e){}
+  return CONFIG.LOGO_SRC;
+}
+function logoHtml(width){
+  width = width || 240;
+  return '<img src="' + esc(getLogoSrc()) + '" alt="JMEP" style="width:'+width+'px;max-width:100%;height:auto;display:block;border-radius:10px" onerror="this.onerror=null;this.src=\'https://placehold.co/240x120/6c0fa3/ffe600?text=JMEP\';">';
+}
+function userAvatarHtml(u, size){
+  size = size || 44;
+  const src = safeImgSrc(u.foto || '');
+  if(src) return '<div class="topbar-avatar" style="width:'+size+'px;height:'+size+'px"><img src="'+src+'" alt=""></div>';
+  const initial = ((u.nombre||'?').trim()[0] || '?').toUpperCase();
+  return '<div class="topbar-avatar" style="width:'+size+'px;height:'+size+'px"><span class="initial">'+esc(initial)+'</span></div>';
+}
+
+/* ============================================================
+   UI HELPERS
+============================================================ */
+const UI = {
+  modal(html){
+    UI.closeModal();
+    const m = document.createElement('div');
+    m.className = 'modal-bg'; m.id = 'genericModal';
+    m.innerHTML = '<div class="modal">' + html + '</div>';
+    m.addEventListener('click', e => { if(e.target === m) UI.closeModal(); });
+    document.body.appendChild(m);
+  },
+  closeModal(){ const m = document.getElementById('genericModal'); if(m) m.remove(); },
+  selectEstado(id, selected, opts){
+    selected = selected || ''; opts = opts || {};
+    let h = '<select id="' + esc(id) + '"' + (opts.disable ? ' disabled' : '') + (opts.onChange ? ' data-change="estadoMunicipio" data-source="' + esc(id) + '"' : '') + '>';
+    h += '<option value="">-- Seleccione Estado --</option>';
+    for(const e of Object.keys(ESTADOS)) h += '<option value="' + esc(e) + '"' + (e === selected ? ' selected' : '') + '>' + esc(e) + '</option>';
+    return h + '</select>';
+  },
+  selectOpts(list, selected, placeholder){
+    let h = '<option value="">' + esc(placeholder||'-- Seleccione --') + '</option>';
+    list.forEach(o => { h += '<option value="'+esc(o)+'"'+(o===selected?' selected':'')+'>'+esc(o)+'</option>'; });
+    return h;
+  }
+};
+
+function bindEnter(inputIds, fn){
+  inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); fn(); } });
+  });
+}
+
+/* ============================================================
+   ROUTER
+============================================================ */
+async function render(){
+  if(!state.user){
+    if(state.view === 'recover') return renderRecover();
+    if(state.view === 'register') return renderRegister();
+    return renderLogin();
+  }
+  if(state.view === 'register'){
+    if(Permissions.creatableRoles(state.user).length === 0){
+      state.view = 'dashboard'; err('No tenés permisos para crear usuarios.'); return renderDashboard();
+    }
+    return renderRegister();
+  }
+  try{ await Api.active.touch(state.user); }catch(e){ console.warn('active.touch', e); }
+  renderDashboard();
+}
+
+/* ---------- LOGIN ---------- */
+function renderLogin(){
+  app.innerHTML =
+    '<div class="login-wrap"><div class="card">' +
+      '<div class="login-logo">' + logoHtml(240) + '</div>' +
+      '<h1>JMEP</h1>' +
+      '<p class="sub">Juventud del Movimiento Electoral del Pueblo · Registro de Jóvenes</p>' +
+      '<label>Cédula de Identidad <span class="hint">(solo número)</span></label>' +
+      '<input id="li_ci" maxlength="12" autocomplete="username" inputmode="numeric" placeholder="Ej: 10000001">' +
+      '<label>Contraseña</label>' +
+      '<div class="field">' +
+        '<input id="li_pw" type="password" maxlength="128" autocomplete="current-password" placeholder="••••••••">' +
+        '<button type="button" class="pw-toggle" data-action="togglePw" data-target="li_pw">Mostrar</button>' +
+      '</div>' +
+      '<div style="margin-top:24px;display:flex;flex-direction:column;gap:14px">' +
+        '<button class="btn ok" data-action="doLogin" type="button">Iniciar Sesión</button>' +
+        '<div class="flex sp">' +
+          '<span class="link" data-action="goRecover">¿Olvidaste tu contraseña?</span>' +
+          '<span class="link" data-action="goPublicRegister">Registrarse</span>' +
+        '</div>' +
+      '</div>' +
+      '<p class="small" style="margin-top:20px;text-align:center;opacity:.7">Acceso exclusivo para la estructura de la JMEP.</p>' +
+    '</div></div>';
+  bindEnter(['li_ci','li_pw'], doLogin);
+}
+
+/* ---------- REGISTRO USUARIO ---------- */
+function renderRegister(){
+  const actor = state.user;
+  let allowedRoles = [];
+  if(actor) allowedRoles = Permissions.creatableRoles(actor);
+  else allowedRoles = [Roles.REGIONAL, Roles.MUNICIPAL];
+
+  const preRole = state.registerRole || allowedRoles[0] || '';
+  const users = DB.get('users', []);
+  const countNac = users.filter(u => u.rol === Roles.NACIONAL).length;
+  const limiteAlcanzado = (preRole === Roles.NACIONAL && countNac >= CONFIG.MAX_NACIONALES);
+  const rolOpts = allowedRoles.map(r => '<option value="'+esc(r)+'"'+(r===preRole?' selected':'')+'>'+esc(r)+'</option>').join('');
+
+  app.innerHTML =
+    '<div class="login-wrap" style="max-width:600px"><div class="card">' +
+      '<div class="login-logo">' + logoHtml(200) + '</div>' +
+      '<h1>JMEP</h1>' +
+      '<p class="sub">Registrar Nuevo Usuario ' + (actor ? (Permissions.isMaster(actor) ? '(Master)' : '(Nacional)') : '(Público)') + '</p>' +
+      '<h4 class="section-title">Fotografía de Perfil</h4>' + photoFieldHTML('rg_user') +
+      '<h4 class="section-title">Datos Personales</h4>' +
+      '<label>Nombre</label><input id="rg_nombre" maxlength="60">' +
+      '<label>Apellido</label><input id="rg_apellido" maxlength="60">' +
+      '<label>Cédula de Identidad <span class="hint">(sin V-)</span></label><input id="rg_ci" maxlength="12" inputmode="numeric" placeholder="Ej: 10000002">' +
+      '<label>Teléfono</label><input id="rg_tel" maxlength="15" placeholder="0414-0000000">' +
+      '<h4 class="section-title">Rol y Asignación</h4>' +
+      '<label>Rol del Usuario</label><select id="rg_rol" data-change="rolChange"><option value="">-- Seleccione --</option>' + rolOpts + '</select>' +
+      '<div id="rg_extra"></div>' +
+      '<h4 class="section-title">Seguridad</h4>' +
+      '<label>Contraseña (mínimo 8 caracteres)</label>' +
+      '<div class="field"><input id="rg_pw" type="password" minlength="8" maxlength="128" autocomplete="new-password">' +
+      '<button type="button" class="pw-toggle" data-action="togglePw" data-target="rg_pw">Mostrar</button></div>' +
+      (limiteAlcanzado ? '<p class="small" style="color:var(--danger);margin-top:12px">Límite de ' + CONFIG.MAX_NACIONALES + ' Nacionales alcanzado.</p>' : '') +
+      '<div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">' +
+        '<button class="btn ok" data-action="doRegister" type="button"' + (limiteAlcanzado ? ' disabled' : '') + '>Crear Cuenta</button>' +
+        '<span class="link" style="text-align:center" data-action="volverInicio">Cancelar y Volver</span>' +
+      '</div>' +
+      (actor ? '' : '<div class="readonly-banner" style="margin-top:14px;border-color:var(--border-strong);font-size:11.5px">⚠️ <b>Nota:</b> Al registrarte, tu cuenta quedará <b>pendiente</b>. Un usuario <b>Master</b> deberá aprobarla para que puedas iniciar sesión.</div>') +
+    '</div></div>';
+  const rolSel = document.getElementById('rg_rol');
+  if(preRole && rolSel) rolSel.value = preRole;
+  onRolChange();
+  const cached = photoCache['rg_user'];
+  if(cached){
+    const pv = document.getElementById('pv_rg_user');
+    if(pv){ pv.innerHTML = '<img src="'+cached.dataUrl+'" alt="foto">'; pv.classList.add('has-photo'); }
+  }
+}
+
+function volverInicio(){
+  state.registerRole = null;
+  clearPhotoCache('rg_');
+  state.view = state.user ? 'dashboard' : 'login';
+  render();
+}
+
+function onRolChange(){
+  const rolEl = document.getElementById('rg_rol');
+  if(!rolEl) return;
+  const rol = rolEl.value;
+  const ex = document.getElementById('rg_extra');
+  if(!ex) return;
+  let html = '';
+  if(rol === Roles.REGIONAL){
+    html = '<label>Estado Asignado</label>' + UI.selectEstado('rg_estado');
+  } else if(rol === Roles.MUNICIPAL){
+    html = '<label>Estado Asignado</label>' + UI.selectEstado('rg_estado','',{onChange:true}) +
+      '<label>Municipio Asignado</label><select id="rg_municipio"><option value="">-- Seleccione estado primero --</option></select>';
+  } else if(rol === Roles.NACIONAL && Permissions.isMaster(state.user)){
+    html = '<label style="margin-top:18px">Designación</label>' +
+      '<label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-weight:600;font-size:13.5px;margin-top:8px;cursor:pointer">' +
+        '<input type="checkbox" id="rg_aprobador" style="width:auto;margin:0">' +
+        '<span>Designar como <b style="color:var(--accent)">Aprobador de Registros</b></span>' +
+      '</label>' +
+      '<p class="small" style="margin-top:6px">El aprobador revisará y aprobará/rechazará los registros de jóvenes cargados por las direcciones Regionales y Municipales.</p>';
+  }
+  ex.innerHTML = html;
+}
+
+function onEstadoMunicipioChange(sourceId){
+  const src = document.getElementById(sourceId);
+  if(!src) return;
+  const est = src.value;
+  const lista = ESTADOS[est] || [];
+  let destId = null;
+  if(sourceId === 'rg_estado') destId = 'rg_municipio';
+  else if(sourceId.startsWith('f_estado_')) destId = sourceId.replace('f_estado_','f_muni_');
+  if(!destId) return;
+  const dest = document.getElementById(destId);
+  if(!dest) return;
+  let h = '<option value="">-- Seleccione Municipio --</option>';
+  for(let i=0;i<lista.length;i++) h += '<option value="' + esc(lista[i]) + '">' + esc(lista[i]) + '</option>';
+  dest.innerHTML = h;
+  if(sourceId.startsWith('f_estado_')) updateJmepPreview(sourceId.replace('f_estado_',''));
+}
+
+function updateJmepPreview(formId){
+  const el = document.getElementById('f_numpreview_' + formId);
+  if(!el) return;
+  const estEl = document.getElementById('f_estado_' + formId);
+  const muniEl = document.getElementById('f_muni_' + formId);
+  const est = estEl ? estEl.value : '';
+  const muni = muniEl ? muniEl.value : '';
+  el.textContent = Api.previewJmepNumber(state.batchTipo, est, muni);
+  if(!est || !muni) el.classList.add('pending');
+  else el.classList.remove('pending');
+}
+
+async function doRegister(){
+  if(state.busy) return;
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const nombre = g('rg_nombre'), apellido = g('rg_apellido'), ci = g('rg_ci'), tel = g('rg_tel'), rol = g('rg_rol');
+  const pwEl = document.getElementById('rg_pw');
+  const pw = pwEl ? pwEl.value : '';
+  if(!nombre || !apellido || !ci || !tel || !rol || !pw) return err('Complete todos los campos obligatorios.');
+  if(nombre.length < 3) return err('Nombre muy corto.');
+  if(apellido.length < 3) return err('Apellido muy corto.');
+  if(!isValidCI(ci)) return err('Cédula inválida.');
+  if(!isValidPhone(tel)) return err('Teléfono inválido (0414-1234567).');
+  if(pw.length < 8) return err('La contraseña debe tener al menos 8 caracteres.');
+  const photo = photoCache['rg_user'];
+  if(!photo || !photo.dataUrl) return err('Debe cargar una fotografía de perfil.');
+
+  if(state.user && !Permissions.canCreateRole(state.user, rol)) return err('No autorizado.');
+  if(!state.user && ![Roles.REGIONAL, Roles.MUNICIPAL].includes(rol)) return err('Rol no permitido.');
+
+  let estado = '', municipio = '', es_aprobador = false;
+  if(rol === Roles.REGIONAL || rol === Roles.MUNICIPAL){ estado = g('rg_estado'); if(!estado) return err('Seleccione el estado.'); }
+  if(rol === Roles.MUNICIPAL){ municipio = g('rg_municipio'); if(!municipio) return err('Seleccione el municipio.'); }
+  if(rol === Roles.NACIONAL && Permissions.isMaster(state.user)){
+    const chk = document.getElementById('rg_aprobador');
+    es_aprobador = !!(chk && chk.checked);
+  }
+  state.busy = true;
+  try{
+    const payload = { nombre, apellido, ci, telefono:tel, rol, estado, municipio, password:pw, foto: photo.dataUrl, es_aprobador };
+    if(CONFIG.USE_POCKETBASE){
+      const blob = await (await fetch(photo.dataUrl)).blob();
+      payload._fotoFile = new File([blob], 'avatar_' + normCI(ci).replace('-','') + '.jpg', { type:'image/jpeg' });
+    }
+    await Api.register(payload, state.user);
+    clearPhotoCache('rg_');
+    showPoliticas();
+  }catch(e){ err(e.message || 'Error al registrar.'); }
+  finally{ state.busy = false; }
+}
+
+function showPoliticas(){
+  UI.modal('<h2>Usuario Creado con Éxito</h2><p style="margin-top:16px;line-height:1.7">' + esc(CONFIG.POLITICAS_TEXTO) + '</p>' +
+    (state.user ? '' : '<p style="margin-top:16px;color:var(--accent)">Recuerda que un Master debe aprobar tu cuenta antes de que puedas iniciar sesión.</p>') +
+    '<div style="margin-top:24px;text-align:right"><button class="btn ok" data-action="aceptarPoliticas">Continuar</button></div>');
+}
+function aceptarPoliticas(){
+  UI.closeModal();
+  ok('Usuario registrado.');
+  state.registerRole = null;
+  state.view = state.user ? 'dashboard' : 'login';
+  if(state.user) state.tab = 'usuarios';
+  render();
+}
+
+/* ---------- RECUPERAR ---------- */
+function renderRecover(){
+  app.innerHTML =
+    '<div class="login-wrap"><div class="card">' +
+      '<div class="login-logo">' + logoHtml(240) + '</div>' +
+      '<h1>JMEP</h1>' +
+      '<p class="sub">Recuperar Contraseña</p>' +
+      '<label>Cédula Registrada <span class="hint">(sin V-)</span></label><input id="rc_ci" maxlength="12" inputmode="numeric" placeholder="Ej: 10000001">' +
+      '<label>Teléfono Registrado</label><input id="rc_tel" maxlength="15" placeholder="0414-0000000">' +
+      '<label>Nueva Contraseña (mín 8)</label>' +
+      '<div class="field"><input id="rc_pw" type="password" minlength="8" maxlength="128">' +
+      '<button type="button" class="pw-toggle" data-action="togglePw" data-target="rc_pw">Mostrar</button></div>' +
+      '<div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">' +
+        '<button class="btn ok" data-action="doRecover" type="button">Actualizar Contraseña</button>' +
+        '<span class="link" style="text-align:center" data-action="volverInicio">Volver al Inicio</span>' +
+      '</div>' +
+    '</div></div>';
+  bindEnter(['rc_ci','rc_tel','rc_pw'], doRecover);
+}
+async function doRecover(){
+  const ci = document.getElementById('rc_ci').value.trim();
+  const tel = document.getElementById('rc_tel').value.trim();
+  const pw = document.getElementById('rc_pw').value;
+  if(!isValidCI(ci)) return err('Cédula inválida.');
+  if(!isValidPhone(tel)) return err('Teléfono inválido.');
+  if(pw.length < 8) return err('La contraseña debe tener al menos 8 caracteres.');
+  try{ await Api.recover(ci, tel, pw); ok('Contraseña restablecida correctamente.'); state.view = state.user ? 'dashboard' : 'login'; render(); }
+  catch(e){ err(e.message); }
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDashboard(){
+  const u = state.user;
+  let rolTxt;
+  if(u.rol === Roles.MASTER) rolTxt = 'Master';
+  else if(u.rol === Roles.NACIONAL) rolTxt = 'Nacional' + (u.es_aprobador ? ' · Aprobador' : '');
+  else if(u.rol === Roles.REGIONAL) rolTxt = 'Regional — ' + u.estado;
+  else rolTxt = 'Municipal — ' + u.municipio;
+  const badgeCls = u.rol === Roles.MASTER ? 'badge master' : 'badge';
+  app.innerHTML =
+    '<div class="topbar">' +
+      '<div class="topbar-brand"><div class="topbar-logo">' + logoHtml(100) + '</div></div>' +
+      '<div class="topbar-user">' +
+        '<span class="' + badgeCls + '">' + esc(rolTxt) + '</span>' +
+        '<div class="topbar-user-info">' +
+          '<div class="name">' + esc(u.nombre) + ' ' + esc(u.apellido) + '</div>' +
+          '<div class="meta">CI ' + esc(u.ci) + '</div>' +
+        '</div>' +
+        userAvatarHtml(u, 44) +
+        '<button class="btn sec" style="padding:8px 12px;font-size:12px" data-action="logout">Salir</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="container" id="tabsWrap"></div>' +
+    '<div class="container" id="content" style="padding-top:0"></div>';
+  renderTabs();
+  renderTabContent();
+}
+
+async function logout(){
+  await Api.logout();
+  state.user = null; state.tab = null; state.view = 'login';
+  state.batchCount = 0; state.batchTipo = null; state.userTab = 'pendientes';
+  clearPhotoCache();
+  render();
+}
+
+async function pendingCountForTabs(){
+  try{
+    const p = await Api.listRecords({ aprobacion: APROBACION.PENDIENTE });
+    return p.length;
+  }catch(e){ return 0; }
+}
+
+async function renderTabs(){
+  const u = state.user;
+  const wrap = document.getElementById('tabsWrap');
+  let tabs = [];
+  const reglamentoTab = ['reglamento','📖 Reglamento MEP'];
+  if(u.rol === Roles.MASTER){
+    const pend = await pendingCountForTabs();
+    tabs = [
+      ['inicio','Inicio'],
+      ['cargar','Cargar Lotes'],
+      ['aprobaciones','Aprobaciones' + (pend ? '|' + pend : '')],
+      ['reporte','Reportes'],
+      ['usuarios','Usuarios'],
+      ['activos','Activos'],
+      ['historial','Historial'],
+      reglamentoTab
+    ];
+  } else if(u.rol === Roles.NACIONAL){
+    if(u.es_aprobador){
+      const pend = await pendingCountForTabs();
+      tabs = [
+        ['inicio','Inicio'],
+        ['cargar','Cargar Lotes'],
+        ['aprobaciones','Aprobaciones' + (pend ? '|' + pend : '')],
+        ['reporte','Reportes'],
+        ['usuarios','Usuarios'],
+        ['activos','Activos'],
+        ['historial','Historial'],
+        reglamentoTab
+      ];
+    } else {
+      tabs = [
+        ['inicio','Inicio'],
+        ['cargar','Cargar Lotes'],
+        ['reporte','Reportes'],
+        ['usuarios','Usuarios'],
+        ['activos','Activos'],
+        ['historial','Historial'],
+        reglamentoTab
+      ];
+    }
+  } else if(u.rol === Roles.REGIONAL){
+    tabs = [['cargar','Cargar Regional'],['municipios','Estado'],reglamentoTab];
+  } else {
+    tabs = [['cargar','Cargar Municipal'],['ver','Ver Registros'],reglamentoTab];
+  }
+  const valid = tabs.map(t => t[0].split('|')[0]);
+  if(!valid.includes(state.tab)) state.tab = valid[0];
+  wrap.innerHTML = '<div class="tabs">' +
+    tabs.map(([k,l]) => {
+      const parts = k.split('|');
+      const key = parts[0], count = parts[1];
+      return '<button type="button" class="tab ' + (state.tab===key?'active':'') + '" data-action="changeTab" data-tab="' + esc(key) + '">' +
+        esc(l) + (count ? '<span class="count">' + esc(count) + '</span>' : '') +
+      '</button>';
+    }).join('') +
+  '</div>';
+}
+
+async function changeTab(k){
+  if(k !== state.tab){ state.batchCount = 0; state.batchTipo = null; }
+  state.tab = k;
+  renderTabs();
+  await renderTabContent();
+}
+
+async function renderTabContent(){
+  const c = document.getElementById('content');
+  if(!c) return;
+  const u = state.user;
+  c.innerHTML = '<div class="card" style="text-align:center;padding:40px"><div class="loader"></div> <span style="margin-left:8px;color:var(--text-dim)">Cargando módulo...</span></div>';
+  try{
+    if(state.tab === 'reglamento'){ c.innerHTML = renderReglamento(); return; }
+    if(u.rol === Roles.MASTER || u.rol === Roles.NACIONAL){
+      if(state.tab === 'inicio') c.innerHTML = await inicioView();
+      else if(state.tab === 'cargar') c.innerHTML = nacionalCargar();
+      else if(state.tab === 'aprobaciones') c.innerHTML = await aprobacionesView();
+      else if(state.tab === 'reporte') c.innerHTML = await nacionalReporte();
+      else if(state.tab === 'usuarios') c.innerHTML = await usuariosView();
+      else if(state.tab === 'activos'){ c.innerHTML = await activosView(); scheduleActivosRefresh(); }
+      else if(state.tab === 'historial') c.innerHTML = await historialView();
+    } else if(u.rol === Roles.REGIONAL){
+      if(state.tab === 'cargar') c.innerHTML = regionalCargar();
+      else if(state.tab === 'municipios') c.innerHTML = await regionalMunicipiosReadOnly();
+    } else {
+      if(state.tab === 'ver') c.innerHTML = await municipalVerRegistros();
+      else c.innerHTML = municipalCargar();
+    }
+    if(state.tab === 'cargar') renderFormZone();
+  }catch(e){
+    if(isAuthError(e)){ await logout(); err('Sesión expirada. Vuelva a iniciar sesión.'); return; }
+    c.innerHTML = '<div class="card"><b style="color:var(--danger)">Error:</b> ' + esc(e.message || String(e)) + '</div>';
+  }
+}
+
+let activosTimer = null;
+function scheduleActivosRefresh(){
+  if(activosTimer) clearTimeout(activosTimer);
+  activosTimer = setTimeout(async () => {
+    activosTimer = null;
+    if(state.tab === 'activos'){
+      const c = document.getElementById('content');
+      if(c) c.innerHTML = await activosView();
+      scheduleActivosRefresh();
+    }
+  }, 4000);
+}
+
+async function inicioView(){
+  const u = state.user;
+  const all = await Api.listRecords({});
+  const pend = all.filter(r => (r.aprobacion||APROBACION.PENDIENTE) === APROBACION.PENDIENTE).length;
+  const aprob = all.filter(r => r.aprobacion === APROBACION.APROBADO).length;
+  const rech = all.filter(r => r.aprobacion === APROBACION.RECHAZADO).length;
+  const estados = Object.keys(ESTADOS);
+  const activos = estados.filter(e => all.some(r => r.estado === e)).length;
+  const extra = Permissions.isMaster(u)
+    ? '<div class="card"><div class="small">Usuarios del Sistema</div><div class="tot" style="font-size:32px;margin-top:8px">' + (await Api.listUsers()).length + '</div></div>'
+    : '';
+  const logoPanel = Permissions.isMaster(u)
+    ? '<div class="card section"><h2>Personalización de Marca</h2>' +
+      '<p class="small" style="margin-top:6px">Cambia el logo que aparece en toda la aplicación.</p>' +
+      '<div class="flex" style="margin-top:14px">' +
+        '<button class="btn" data-action="abrirCambioLogo">🖼️ Cambiar Logo</button>' +
+        (DB.get('custom_logo', null) ? '<button class="btn sec" data-action="resetLogo">↺ Restaurar Original</button>' : '') +
+      '</div>' +
+      '<div style="margin-top:14px;padding:14px;background:rgba(20,7,32,0.7);border-radius:12px;display:inline-block;border:1px solid var(--border)">' +
+        logoHtml(180) +
+      '</div>' +
+    '</div>'
+    : '';
+  return '<div class="card"><h2>Bienvenido, ' + esc(u.nombre) + ' ' + esc(u.apellido) + '</h2>' +
+    '<p class="small" style="margin-top:6px">Rol activo: <b style="color:var(--accent)">' + esc(u.rol) + '</b>' + (u.es_aprobador ? ' · <b style="color:var(--accent)">Aprobador</b>' : '') + ' · CI: <b style="color:var(--accent)">' + esc(u.ci) + '</b></p>' +
+    '<div class="grid3 section">' +
+      '<div class="card"><div class="small">Total Jóvenes</div><div class="tot" style="font-size:28px;margin-top:8px">' + all.length + '</div></div>' +
+      '<div class="card"><div class="small">Pendientes</div><div class="tot" style="font-size:28px;margin-top:8px;color:#ffc107">' + pend + '</div></div>' +
+      '<div class="card"><div class="small">Aprobados</div><div class="tot" style="font-size:28px;margin-top:8px;color:#3ccf8e">' + aprob + '</div></div>' +
+      '<div class="card"><div class="small">Rechazados</div><div class="tot" style="font-size:28px;margin-top:8px;color:#ff8585">' + rech + '</div></div>' +
+      '<div class="card"><div class="small">Estados con Registros</div><div class="tot" style="font-size:28px;margin-top:8px">' + activos + ' / ' + estados.length + '</div></div>' +
+      extra +
+    '</div>' + logoPanel + '</div>';
+}
+
+/* ---------- CARGAR ---------- */
+function nacionalCargar(){
+  const showBack = !!state.batchTipo;
+  return '<div class="card"><h2>Cargar lote Regional o Municipal</h2>' +
+    '<p class="small" style="margin-top:6px">Cada lote requiere entre <b style="color:var(--accent)">' + CONFIG.MIN_BATCH + '</b> y <b style="color:var(--accent)">' + CONFIG.MAX_BATCH + ' jóvenes</b>.</p>' +
+    '<p class="small">Los registros ingresan como <b style="color:#ffc107">pendientes</b> de aprobación.</p>' +
+    '<div class="flex section">' +
+      '<button class="btn" data-action="mostrarFormulario" data-tipo="Regional">Cargar Lote Regional</button>' +
+      '<button class="btn" data-action="mostrarFormulario" data-tipo="Municipal">Cargar Lote Municipal</button>' +
+      (showBack ? '<button class="btn sec" data-action="volverCarga">← Atrás</button>' : '') +
+    '</div>' +
+    '<div id="formZone" class="section"></div></div>';
+}
+function regionalCargar(){
+  const u = state.user; const showBack = !!state.batchTipo;
+  return '<div class="card"><h2>Cargar Registros — Dirección Regional</h2>' +
+    '<p class="small" style="margin-top:6px">Estado asignado: <b style="color:var(--accent)">' + esc(u.estado) + '</b></p>' +
+    '<p class="small">Lotes de <b style="color:var(--accent)">' + CONFIG.MIN_BATCH + '</b> a <b style="color:var(--accent)">' + CONFIG.MAX_BATCH + '</b> jóvenes.</p>' +
+    '<p class="small">Los registros ingresan como <b style="color:#ffc107">pendientes</b> de aprobación.</p>' +
+    '<div class="flex section">' +
+      (showBack ? '<button class="btn sec" data-action="volverCarga">← Atrás</button>' : '<button class="btn" data-action="mostrarFormulario" data-tipo="Regional">Iniciar Carga Regional</button>') +
+    '</div><div id="formZone" class="section"></div></div>';
+}
+function municipalCargar(){
+  const u = state.user; const showBack = !!state.batchTipo;
+  return '<div class="card"><h2>Cargar Registros — Dirección Municipal</h2>' +
+    '<p class="small" style="margin-top:6px">Municipio: <b style="color:var(--accent)">' + esc(u.municipio) + '</b> — Estado: <b style="color:var(--accent)">' + esc(u.estado) + '</b></p>' +
+    '<p class="small">Lotes de <b style="color:var(--accent)">' + CONFIG.MIN_BATCH + '</b> a <b style="color:var(--accent)">' + CONFIG.MAX_BATCH + '</b> jóvenes.</p>' +
+    '<p class="small">Los registros ingresan como <b style="color:#ffc107">pendientes</b> de aprobación.</p>' +
+    '<div class="flex section">' +
+      (showBack ? '<button class="btn sec" data-action="volverCarga">← Atrás</button>' : '<button class="btn" data-action="mostrarFormulario" data-tipo="Municipal">Iniciar Carga Municipal</button>') +
+    '</div><div id="formZone" class="section"></div></div>';
+}
+function volverCarga(){
+  state.batchTipo = null; state.batchCount = 0;
+  clearPhotoCache('id_');
+  renderTabContent();
+}
+function mostrarFormulario(tipo){
+  if(state.batchTipo !== tipo) state.batchCount = 0;
+  state.batchTipo = tipo;
+  renderTabContent();
+}
+function resetBatch(){
+  state.batchCount = 0;
+  clearPhotoCache('id_');
+  renderFormZone();
+}
+
+function finalizarCarga(){
+  const count = state.batchCount || 0;
+  if(count < CONFIG.MIN_BATCH) return err('Debe registrar al menos ' + CONFIG.MIN_BATCH + ' jóvenes para cerrar la carga.');
+  ok('Carga finalizada: ' + count + ' joven(es). Quedan pendientes de aprobación.');
+  state.batchCount = 0; state.batchTipo = null;
+  clearPhotoCache('id_');
+  renderTabContent();
+}
+
+function renderFormZone(){
+  const zone = document.getElementById('formZone');
+  if(!zone) return;
+  const u = state.user;
+  let tipo = null, estadoPre = '', municipioPre = '', bloquearEstado = false, bloquearMunicipio = false;
+  if(u.rol === Roles.REGIONAL){
+    if(!state.batchTipo){ zone.innerHTML = ''; return; }
+    tipo = 'Regional'; estadoPre = u.estado || ''; bloquearEstado = true;
+  } else if(u.rol === Roles.MUNICIPAL){
+    if(!state.batchTipo){ zone.innerHTML = ''; return; }
+    tipo = 'Municipal'; estadoPre = u.estado || ''; municipioPre = u.municipio || '';
+    bloquearEstado = true; bloquearMunicipio = true;
+  } else { tipo = state.batchTipo; }
+  if(!tipo){ zone.innerHTML = ''; return; }
+  const count = state.batchCount || 0;
+  if(count >= CONFIG.MAX_BATCH){
+    zone.innerHTML = '<div class="success-box"><b style="color:var(--accent);font-size:16px">✅ Lote Completado (' + CONFIG.MAX_BATCH + ' jóvenes).</b>' +
+      '<div style="margin-top:14px"><button class="btn ok" data-action="resetBatch">Iniciar Nuevo Lote</button></div></div>';
+    return;
+  }
+  const tag = '<div class="batch-tag">Joven ' + (count + 1) + ' de ' + CONFIG.MAX_BATCH + ' · Mínimo ' + CONFIG.MIN_BATCH + ' requerido</div>';
+  zone.innerHTML = tag + formularioHTML(tipo, estadoPre, municipioPre, bloquearEstado, bloquearMunicipio);
+  const estSel = zone.querySelector('[id^="f_estado_"]');
+  if(estSel) updateJmepPreview(estSel.id.replace('f_estado_',''));
+}
+
+/* ============================================================
+   FORMULARIO DE REGISTRO DE JÓVENES (ADAPTADO JMEP)
+============================================================ */
+function formularioHTML(tipo, estadoPre, municipioPre, bloquearEstado, bloquearMunicipio){
+  estadoPre = estadoPre || ''; municipioPre = municipioPre || '';
+  const id = uid();
+  let estadosOpts = '';
+  for(const e of Object.keys(ESTADOS)) estadosOpts += '<option value="' + esc(e) + '"' + (e === estadoPre ? ' selected' : '') + '>' + esc(e) + '</option>';
+  let muniOpts = '';
+  if(estadoPre && ESTADOS[estadoPre]) for(const m of ESTADOS[estadoPre]) muniOpts += '<option value="' + esc(m) + '"' + (m === municipioPre ? ' selected' : '') + '>' + esc(m) + '</option>';
+  const estadoSelect = bloquearEstado
+    ? '<select id="f_estado_' + id + '" disabled><option value="' + esc(estadoPre) + '" selected>' + esc(estadoPre) + '</option></select>'
+    : '<select id="f_estado_' + id + '" data-change="estadoMunicipio" data-source="f_estado_' + id + '"><option value="">-- Seleccione Estado --</option>' + estadosOpts + '</select>';
+  const muniSelect = bloquearMunicipio
+    ? '<select id="f_muni_' + id + '" disabled><option value="' + esc(municipioPre) + '" selected>' + esc(municipioPre) + '</option></select>'
+    : '<select id="f_muni_' + id + '" data-change="mepPreview">' +
+        (estadoPre ? '' : '<option value="">-- Seleccione estado primero --</option>') + muniOpts + '</select>';
+  const previewNum = Api.previewJmepNumber(tipo, estadoPre, municipioPre);
+
+  return '' +
+  '<div class="card section" style="background:linear-gradient(135deg,rgba(108,15,163,0.3) 0%,rgba(255,230,0,0.06) 100%);border:1px solid var(--border-strong)">' +
+    '<div class="flex sp" style="flex-wrap:wrap;gap:12px">' +
+      '<div><b style="color:var(--accent);font-size:15px;letter-spacing:0.5px">FICHA JMEP — ' + esc(tipo) + '</b>' +
+      '<div class="small" style="margin-top:2px">Fecha: ' + new Date().toLocaleString('es-VE') + '</div></div>' +
+      '<span class="badge">' + esc(tipo) + '</span>' +
+    '</div>' +
+    '<div style="margin-top:14px">' +
+      '<div class="small" style="color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:800">Número de Registro JMEP</div>' +
+      '<div class="mep-num-preview' + (!estadoPre || !municipioPre ? ' pending' : '') + '" id="f_numpreview_' + id + '">' + esc(previewNum) + '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<h4 class="section-title">Fotografía Tipo Carnet</h4>' + photoFieldHTML(id) +
+
+  '<h4 class="section-title">Datos Personales</h4>' +
+  '<div class="grid">' +
+    '<div><label>Nombres y Apellidos</label><input id="f_nombre_' + id + '" maxlength="120" placeholder="Ej: María José Pérez"></div>' +
+    '<div><label>Cédula de Identidad <span class="hint">(sin V-)</span></label><input id="f_ci_' + id + '" maxlength="12" inputmode="numeric" placeholder="Ej: 28000000"></div>' +
+    '<div><label>Sexo</label><select id="f_sexo_' + id + '">' + UI.selectOpts(SEXOS,'') + '</select></div>' +
+    '<div><label>Fecha de Nacimiento</label><input type="date" id="f_fecha_nac_' + id + '"></div>' +
+    '<div><label>Profesión</label><input id="f_profesion_' + id + '" maxlength="100" placeholder="Ej: Bachiller / Estudiante de Medicina"></div>' +
+  '</div>' +
+
+  '<h4 class="section-title">Formación y Ocupación</h4>' +
+  '<div class="grid">' +
+    '<div><label>Ocupación</label><select id="f_ocupacion_' + id + '">' + UI.selectOpts(OCUPACIONES,'') + '</select></div>' +
+    '<div><label>Institución Educativa</label><input id="f_institucion_' + id + '" maxlength="120" placeholder="Ej: Liceo Bolivariano / Universidad"></div>' +
+    '<div><label>Nivel de Instrucción</label><select id="f_nivel_inst_' + id + '">' + UI.selectOpts(NIVELES_INSTRUCCION,'') + '</select></div>' +
+    '<div><label>Área / Especialidad</label><input id="f_area_' + id + '" maxlength="100" placeholder="Ej: Ciencias / Ingeniería"></div>' +
+  '</div>' +
+
+  '<h4 class="section-title">Ubicación</h4>' +
+  '<div class="grid">' +
+    '<div><label>Estado</label>' + estadoSelect + '</div>' +
+    '<div><label>Municipio</label>' + muniSelect + '</div>' +
+    '<div><label>Parroquia</label><input id="f_parroquia_' + id + '" maxlength="80" placeholder="Ej: Petare"></div>' +
+    '<div><label>Sector</label><input id="f_sector_' + id + '" maxlength="80" placeholder="Ej: La Urbina"></div>' +
+    '<div style="grid-column:1/-1"><label>Residencia (Dirección)</label><input id="f_residencia_' + id + '" maxlength="120" placeholder="Calle / Edificio / Casa"></div>' +
+  '</div>' +
+
+  '<h4 class="section-title">Contacto</h4>' +
+  '<div class="grid">' +
+    '<div><label>Teléfono</label><input id="f_telefono_' + id + '" maxlength="15" placeholder="0414-3924396"></div>' +
+    '<div><label>Correo Electrónico</label><input type="email" id="f_email_' + id + '" maxlength="100" placeholder="correo@dominio.com"></div>' +
+  '</div>' +
+
+  '<h4 class="section-title">Participación Juvenil</h4>' +
+  '<div class="grid">' +
+    '<div style="grid-column:1/-1"><label>Sector donde Activa</label><select id="f_sector_activa_' + id + '">' + UI.selectOpts(SECTORES_ACTIVA,'') + '</select></div>' +
+  '</div>' +
+
+  '<div class="section"><button class="btn ok" data-action="guardarFormulario" data-tipo="' + esc(tipo) + '" data-id="' + esc(id) + '">Guardar y Continuar Lote</button></div>';
+}
+
+async function guardarFormulario(tipo, id){
+  if(state.busy) return;
+  if((state.batchCount || 0) >= CONFIG.MAX_BATCH) return err('Límite de lote alcanzado.');
+  const v = k => { const el = document.getElementById('f_' + k + '_' + id); return el ? el.value.trim() : ''; };
+  const data = {
+    tipo: tipo,
+    nombre: v('nombre'), ci: v('ci'), sexo: v('sexo'), fecha_nac: v('fecha_nac'),
+    profesion: v('profesion'), ocupacion: v('ocupacion'), institucion: v('institucion'),
+    nivel_inst: v('nivel_inst'), area: v('area'),
+    estado: v('estado'), municipio: v('muni'), parroquia: v('parroquia'), sector: v('sector'), residencia: v('residencia'),
+    telefono: v('telefono'), email: v('email'), sector_activa: v('sector_activa')
+  };
+  if(!data.nombre || !data.ci || !data.sexo || !data.fecha_nac) return err('Complete los datos personales.');
+  if(!data.ocupacion || !data.institucion || !data.nivel_inst) return err('Complete formación y ocupación.');
+  if(!data.estado || !data.municipio || !data.parroquia) return err('Complete la ubicación.');
+  if(!data.telefono) return err('Ingrese el teléfono.');
+  if(!data.sector_activa) return err('Indique el sector donde activa.');
+  if(!isValidCI(data.ci)) return err('Cédula de identidad inválida.');
+  if(!isValidPhone(data.telefono)) return err('Teléfono inválido (formato 0414-1234567).');
+  if(data.email && !isValidEmail(data.email)) return err('Correo electrónico inválido.');
+  if(data.fecha_nac){
+    const d = new Date(data.fecha_nac);
+    const min = new Date('1950-01-01');
+    const hoy = new Date();
+    if(isNaN(d.getTime()) || d < min || d > hoy) return err('Fecha de nacimiento inválida.');
+  }
+  const photo = photoCache[id];
+  if(!photo || !photo.dataUrl) return err('Debe cargar la fotografía tipo carnet.');
+  state.busy = true;
+  try{
+    if(await Api.existsCI(data.ci)) throw new Error('Ya existe un registro con esta cédula de identidad.');
+    let numero = null;
+    for(let i=0; i<CONFIG.MAX_JMEP_RETRY; i++){
+      const candidate = Api.nextJmepNumber(data.tipo, data.estado, data.municipio);
+      const taken = await Api.existsNumero(candidate);
+      if(!taken){ numero = candidate; break; }
+    }
+    if(!numero) numero = jmepRandomSuffix();
+    data.numero = numero;
+    data.foto = photo.dataUrl;
+    data.aprobacion = APROBACION.PENDIENTE;
+    data.aprobado_por = '';
+    data.aprobado_por_nombre = '';
+    data.aprobado_en = 0;
+    data.rechazado_motivo = '';
+    if(CONFIG.USE_POCKETBASE){
+      const blob = await (await fetch(photo.dataUrl)).blob();
+      data._file = new File([blob], 'joven_' + normCI(data.ci).replace('-','') + '.jpg', { type:'image/jpeg' });
+      delete data.foto;
+      await Api.saveRecord(data);
+    } else { await Api.saveRecord(data); }
+    delete photoCache[id];
+    state.batchCount = (state.batchCount || 0) + 1;
+    mostrarExitoRegistro(tipo);
+  }catch(e){
+    if(isAuthError(e)){ await logout(); return err('Sesión expirada.'); }
+    err(e.message || 'Error al guardar el registro.');
+  }
+  finally{ state.busy = false; }
+}
+
+function mostrarExitoRegistro(tipo){
+  const zone = document.getElementById('formZone');
+  if(!zone) return;
+  const count = state.batchCount;
+  if(count >= CONFIG.MAX_BATCH){
+    zone.innerHTML = '<div class="success-box"><b style="color:var(--accent);font-size:16px">✅ Límite máximo de lote alcanzado (' + CONFIG.MAX_BATCH + ').</b>' +
+      '<p class="small" style="margin-top:6px">Los registros quedan pendientes de aprobación.</p>' +
+      '<div style="margin-top:14px"><button class="btn ok" data-action="resetBatch">Iniciar Nuevo Lote</button></div></div>';
+    clearPhotoCache('id_');
+    return;
+  }
+  const canFinish = count >= CONFIG.MIN_BATCH;
+  const hint = canFinish ? '' : '<p class="small" style="margin-top:8px;color:var(--text-muted)">Debe cargar al menos ' + CONFIG.MIN_BATCH + ' jóvenes para cerrar el lote.</p>';
+  zone.innerHTML = '<div class="success-box">' +
+    '<b style="color:var(--accent);font-size:16px">✅ Registro guardado (' + count + ' de ' + CONFIG.MAX_BATCH + ')</b>' + hint +
+    '<p class="small" style="margin-top:6px">Pendiente de aprobación por el nivel Nacional designado.</p>' +
+    '<div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+      '<button class="btn ok" data-action="nuevoRegistro">+ Siguiente Joven</button>' +
+      (canFinish ? '<button class="btn sec" data-action="finalizarCarga">Finalizar Lote Actual</button>' : '') +
+    '</div></div>';
+}
+function nuevoRegistro(){ renderFormZone(); }
+
+/* ---------- MUNICIPAL: vista read-only ---------- */
+async function municipalVerRegistros(){
+  const u = state.user;
+  const rows = await Api.listRecords({ estado: u.estado, municipio: u.municipio });
+  const body = rows.length ? rows.map(r => {
+    const imgSrc = safeImgSrc(r.foto || '');
+    return '<tr>' +
+      '<td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+      '<td>' + esc(r.nombre) + '</td><td>' + esc(r.ci) + '</td><td>' + esc(r.telefono||'') + '</td>' +
+      '<td>' + esc(r.sexo||'') + '</td><td class="small">' + esc(r.numero||'') + '</td>' +
+      '<td>' + aprobBadge(r.aprobacion) + '</td></tr>';
+  }).join('') : '<tr><td colspan="7">Sin registros en este municipio.</td></tr>';
+  return '<div class="card"><h2>Registros del Municipio — ' + esc(u.municipio) + '</h2>' +
+    '<p class="small" style="margin-top:4px">Estado: <b style="color:var(--accent)">' + esc(u.estado) + '</b></p>' +
+    '<div class="readonly-banner">🔒 <b>Vista de solo lectura.</b> Para modificaciones, contacte a la Dirección Regional.</div>' +
+    '<p class="small" style="margin-top:14px">Total registros: <b style="color:var(--accent)">' + rows.length + '</b></p>' +
+    '<div class="table-responsive"><table><thead><tr><th>Foto</th><th>Nombres</th><th>C.I.</th><th>Teléfono</th><th>Sexo</th><th>N° JMEP</th><th>Aprobación</th></tr></thead><tbody>' + body + '</tbody></table></div></div>';
+}
+
+function aprobBadge(estado){
+  estado = estado || APROBACION.PENDIENTE;
+  if(estado === APROBACION.APROBADO) return '<span class="badge green">Aprobado</span>';
+  if(estado === APROBACION.RECHAZADO) return '<span class="badge red">Rechazado</span>';
+  return '<span class="badge warn">Pendiente</span>';
+}
+
+/* ---------- REGIONAL: read-only ---------- */
+async function regionalMunicipiosReadOnly(){
+  const u = state.user;
+  const municipios = ESTADOS[u.estado] || [];
+  const all = await Api.listRecords({ estado: u.estado });
+  const items = municipios.map((m, idx) => {
+    const c = all.filter(r => r.municipio === m).length;
+    return '<div class="state-item" data-action="toggleCollapseRO" data-idx="' + idx + '"><span>' + esc(m) + '</span><span class="badge">' + c + ' reg.</span></div>' +
+      '<div class="collapse-body hidden" id="cb_' + idx + '"></div>';
+  }).join('');
+  return '<div class="card"><h2>Registros del Estado — ' + esc(u.estado) + '</h2>' +
+    '<div class="readonly-banner">🔒 <b>Vista de solo lectura.</b> Para cambios estructurales, contacte al Nivel Nacional.</div>' +
+    '<p class="small" style="margin-top:14px">Total en el estado: <b style="color:var(--accent)">' + all.length + '</b></p>' +
+    '<p class="small" style="margin-top:4px">Seleccione un municipio para desplegar la lista.</p>' +
+    '<div class="section">' + items + '</div></div>';
+}
+
+async function toggleCollapseRO(idx){
+  const el = document.getElementById('cb_' + idx);
+  if(!el) return;
+  if(el.classList.contains('hidden')){
+    const municipios = ESTADOS[state.user.estado] || [];
+    const m = municipios[Number(idx)];
+    if(!m) return;
+    const rows = await Api.listRecords({ estado: state.user.estado, municipio: m });
+    el.innerHTML = rows.length
+      ? '<div class="table-responsive" style="margin-top:0"><table style="margin-top:0"><thead><tr><th>Foto</th><th>Nombres</th><th>C.I.</th><th>Teléfono</th><th>N° JMEP</th><th>Aprobación</th></tr></thead><tbody>' +
+        rows.map(r => {
+          const imgSrc = safeImgSrc(r.foto || '');
+          return '<tr><td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+            '<td>' + esc(r.nombre) + '</td><td>' + esc(r.ci) + '</td><td>' + esc(r.telefono||'') + '</td><td class="small">' + esc(r.numero||'') + '</td>' +
+            '<td>' + aprobBadge(r.aprobacion) + '</td></tr>';
+        }).join('') + '</tbody></table></div>'
+      : '<div class="small">Sin registros en este municipio.</div>';
+    el.classList.remove('hidden');
+  } else el.classList.add('hidden');
+}
+
+/* ============================================================
+   APROBACIONES
+============================================================ */
+async function aprobacionesView(){
+  if(!Permissions.canApprove(state.user)){
+    return '<div class="card"><h2>Aprobaciones</h2><p class="small" style="margin-top:8px">No tenés permisos para aprobar registros.</p></div>';
+  }
+  const all = await Api.listRecords({});
+  const pendientes = all.filter(r => (r.aprobacion||APROBACION.PENDIENTE) === APROBACION.PENDIENTE);
+  const aprobados = all.filter(r => r.aprobacion === APROBACION.APROBADO);
+  const rechazados = all.filter(r => r.aprobacion === APROBACION.RECHAZADO);
+  const filter = state.approvalFilter || 'pendiente';
+  let list = filter === 'aprobado' ? aprobados : filter === 'rechazado' ? rechazados : filter === 'todos' ? all : pendientes;
+  if(state.approvalEstado) list = list.filter(r => r.estado === state.approvalEstado);
+  if(state.approvalMunicipio) list = list.filter(r => r.municipio === state.approvalMunicipio);
+
+  const estadosOpts = '<option value="">Todos los estados</option>' +
+    Object.keys(ESTADOS).map(e => '<option value="'+esc(e)+'"'+(e===state.approvalEstado?' selected':'')+'>'+esc(e)+'</option>').join('');
+  const muniList = state.approvalEstado ? (ESTADOS[state.approvalEstado]||[]) : [];
+  const muniOpts = '<option value="">Todos los municipios</option>' +
+    muniList.map(m => '<option value="'+esc(m)+'"'+(m===state.approvalMunicipio?' selected':'')+'>'+esc(m)+'</option>').join('');
+
+  const rows = list.length ? list.map(r => {
+    const imgSrc = safeImgSrc(r.foto || '');
+    const actions = filter === 'pendiente'
+      ? '<button class="btn ok" style="padding:6px 10px;font-size:11.5px" data-action="aprobarRegistro" data-id="' + esc(r.id) + '">✓ Aprobar</button> ' +
+        '<button class="btn danger" style="padding:6px 10px;font-size:11.5px" data-action="rechazarRegistro" data-id="' + esc(r.id) + '">✕ Rechazar</button>'
+      : '<button class="btn sec" style="padding:6px 10px;font-size:11.5px" data-action="verPlanillaDetalle" data-estado="' + esc(r.estado) + '" data-municipio="' + esc(r.municipio) + '" data-ci="' + esc(r.ci) + '">Ver</button>';
+    return '<tr>' +
+      '<td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+      '<td>' + esc(r.nombre) + '</td><td>' + esc(r.ci) + '</td>' +
+      '<td>' + esc(r.tipo || '') + '</td>' +
+      '<td>' + esc(r.estado) + ' / ' + esc(r.municipio) + '</td>' +
+      '<td>' + aprobBadge(r.aprobacion) + '</td>' +
+      '<td>' + actions + '</td></tr>';
+  }).join('') : '<tr><td colspan="7">Sin registros para este filtro.</td></tr>';
+
+  return '<div class="card"><h2>Aprobación de Registros</h2>' +
+    '<p class="small" style="margin-top:6px">Revisá y aprobá/rechazá los registros cargados por las direcciones Regionales y Municipales.</p>' +
+    '<div class="tabs section" style="margin-top:14px">' +
+      '<button type="button" class="tab ' + (filter==='pendiente'?'active':'') + '" data-action="setApprovalFilter" data-filtro="pendiente">Pendientes (' + pendientes.length + ')</button>' +
+      '<button type="button" class="tab ' + (filter==='aprobado'?'active':'') + '" data-action="setApprovalFilter" data-filtro="aprobado">Aprobados (' + aprobados.length + ')</button>' +
+      '<button type="button" class="tab ' + (filter==='rechazado'?'active':'') + '" data-action="setApprovalFilter" data-filtro="rechazado">Rechazados (' + rechazados.length + ')</button>' +
+      '<button type="button" class="tab ' + (filter==='todos'?'active':'') + '" data-action="setApprovalFilter" data-filtro="todos">Todos (' + all.length + ')</button>' +
+    '</div>' +
+    '<div class="grid section" style="gap:12px">' +
+      '<div><label>Estado</label><select id="ap_estado">' + estadosOpts + '</select></div>' +
+      '<div><label>Municipio</label><select id="ap_muni">' + muniOpts + '</select></div>' +
+    '</div>' +
+    '<div class="table-responsive" style="margin-top:14px"><table>' +
+      '<thead><tr><th>Foto</th><th>Nombres</th><th>C.I.</th><th>Tipo</th><th>Estado/Municipio</th><th>Estatus</th><th>Acciones</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div></div>';
+}
+
+function setApprovalFilter(f){ state.approvalFilter = f; renderTabContent(); }
+
+async function aprobarRegistro(id){
+  if(!Permissions.canApprove(state.user)) return err('No autorizado.');
+  if(!confirm('¿Confirmás aprobar este registro?')) return;
+  try{ await Api.aprobarRecord(state.user, id, ''); ok('Registro aprobado.'); renderTabs(); renderTabContent(); }
+  catch(e){ err(e.message); }
+}
+
+function rechazarRegistro(id){
+  if(!Permissions.canApprove(state.user)) return err('No autorizado.');
+  UI.modal(
+    '<h2>Rechazar Registro</h2>' +
+    '<p class="small" style="margin-top:6px">Indicá el motivo del rechazo.</p>' +
+    '<label style="margin-top:16px">Motivo (mínimo 5 caracteres)</label>' +
+    '<textarea id="rj_motivo" rows="4" maxlength="300" placeholder="Ej: Cédula no coincide con la foto..."></textarea>' +
+    '<div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">' +
+      '<button class="btn sec" data-action="closeModal">Cancelar</button>' +
+      '<button class="btn danger" data-action="confirmarRechazo" data-id="' + esc(id) + '">Rechazar</button>' +
+    '</div>'
+  );
+}
+
+async function confirmarRechazo(id){
+  const el = document.getElementById('rj_motivo');
+  const motivo = el ? el.value.trim() : '';
+  if(motivo.length < 5) return err('El motivo debe tener al menos 5 caracteres.');
+  try{
+    await Api.rechazarRecord(state.user, id, motivo);
+    UI.closeModal();
+    ok('Registro rechazado.');
+    renderTabs(); renderTabContent();
+  }catch(e){ err(e.message); }
+}
+
+/* ---------- REPORTE NACIONAL ---------- */
+async function nacionalReporte(){
+  const all = await Api.listRecords({});
+  const estados = Object.keys(ESTADOS);
+  const items = estados.map(e => {
+    const c = all.filter(r => r.estado === e).length;
+    const estadoTxt = c > 0 ? '<span class="badge green">Activo</span>' : '<span class="badge red">Inactivo</span>';
+    return '<div class="state-item" data-action="reporteEstadoDetalle" data-estado="' + esc(e) + '"><span>' + esc(e) + '</span><span class="flex"><span class="badge">' + c + '</span>' + estadoTxt + '</span></div>';
+  }).join('');
+  const pend = all.filter(r => (r.aprobacion||APROBACION.PENDIENTE) === APROBACION.PENDIENTE).length;
+  const aprob = all.filter(r => r.aprobacion === APROBACION.APROBADO).length;
+  const rech = all.filter(r => r.aprobacion === APROBACION.RECHAZADO).length;
+  return '<div class="card"><h2>Reporte Nacional</h2>' +
+    '<div class="grid3 section">' +
+      '<div class="card"><div class="small">Total</div><div class="tot" style="font-size:26px">' + all.length + '</div></div>' +
+      '<div class="card"><div class="small">Pendientes</div><div class="tot" style="font-size:26px;color:#ffc107">' + pend + '</div></div>' +
+      '<div class="card"><div class="small">Aprobados</div><div class="tot" style="font-size:26px;color:#3ccf8e">' + aprob + '</div></div>' +
+      '<div class="card"><div class="small">Rechazados</div><div class="tot" style="font-size:26px;color:#ff8585">' + rech + '</div></div>' +
+    '</div>' +
+    '<div class="section">' + items + '</div>' +
+    '<div class="state-item" style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-hover) 100%);border-color:var(--accent);margin-top:16px"><b style="color:var(--accent)">Total General Nacional</b><b class="tot" style="font-size:18px">' + all.length + '</b></div>' +
+    '<div class="section"><button class="btn ok" data-action="imprimirNacional">🖨️ Imprimir Reporte General</button></div></div>';
+}
+
+async function reporteEstadoDetalle(estado){
+  const municipios = ESTADOS[estado] || [];
+  const all = await Api.listRecords({ estado });
+  const rows = municipios.map(m => {
+    const c = all.filter(r => r.municipio === m).length;
+    return '<tr class="clickable" data-action="verPlanillas" data-estado="' + esc(estado) + '" data-municipio="' + esc(m) + '">' +
+      '<td>' + esc(m) + '</td><td>' + c + '</td>' +
+      '<td>' + (c > 0 ? '<span class="badge green">Activo</span>' : '<span class="badge red">Inactivo</span>') + '</td></tr>';
+  }).join('');
+  UI.modal('<h2>Estado: ' + esc(estado) + '</h2>' +
+    '<p class="small" style="margin-bottom:12px">Total inscritos: <b style="color:var(--accent)">' + all.length + '</b></p>' +
+    '<div class="table-responsive"><table><thead><tr><th>Municipio</th><th>Inscritos</th><th>Estatus</th></tr></thead><tbody>' + rows + '</tbody>' +
+    '<tfoot><tr><td class="tot">TOTAL</td><td class="tot">' + all.length + '</td><td></td></tr></tfoot></table></div>' +
+    '<div class="section flex sp" style="justify-content:flex-end">' +
+      '<button class="btn ok" data-action="imprimirEstado" data-estado="' + esc(estado) + '">🖨️ Imprimir Estado</button>' +
+      '<button class="btn sec" data-action="closeModal">Cerrar</button></div>');
+}
+
+async function verPlanillas(estado, municipio){
+  const rows = await Api.listRecords({ estado, municipio });
+  const body = rows.length ? rows.map(r => {
+    const imgSrc = safeImgSrc(r.foto || '');
+    return '<tr class="clickable" data-action="verPlanillaDetalle" data-estado="' + esc(estado) + '" data-municipio="' + esc(municipio) + '" data-ci="' + esc(r.ci) + '">' +
+      '<td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+      '<td>' + esc(r.nombre) + '</td><td>' + esc(r.ci) + '</td><td>' + esc(r.telefono||'') + '</td>' +
+      '<td>' + esc(r.sexo||'') + '</td><td class="small">' + esc(r.numero||'') + '</td>' +
+      '<td>' + aprobBadge(r.aprobacion) + '</td></tr>';
+  }).join('') : '<tr><td colspan="7">Sin registros.</td></tr>';
+  UI.modal('<h2>Municipio ' + esc(municipio) + ' (' + esc(estado) + ')</h2>' +
+    '<p class="small" style="margin-bottom:12px">' + rows.length + ' joven(es) registrado(s).</p>' +
+    '<div class="table-responsive"><table><thead><tr><th>Foto</th><th>Nombres</th><th>C.I.</th><th>Teléfono</th><th>Sexo</th><th>N° JMEP</th><th>Aprobación</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+    '<div class="section flex sp" style="justify-content:flex-end;margin-top:16px">' +
+      '<button class="btn ok" data-action="imprimirMunicipio" data-estado="' + esc(estado) + '" data-municipio="' + esc(municipio) + '">🖨️ Imprimir Municipio</button>' +
+      '<button class="btn sec" data-action="closeModal">Cerrar</button></div>');
+}
+
+async function verPlanillaDetalle(estado, municipio, ci){
+  const rows = await Api.listRecords({ estado, municipio });
+  const r = rows.find(x => normCI(x.ci) === normCI(ci));
+  if(!r) return err('Registro no encontrado.');
+  const imgSrc = safeImgSrc(r.foto || '');
+  const row = (k, v) => v ? '<div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div>' : '';
+  const est = r.aprobacion || APROBACION.PENDIENTE;
+  const canApprove = Permissions.canApprove(state.user) && est === APROBACION.PENDIENTE;
+  const aprobBox =
+    '<div class="aprob-box ' + est + '">' +
+      '<div class="flex sp" style="gap:12px;flex-wrap:wrap">' +
+        '<b style="color:var(--accent);text-transform:uppercase;font-size:11.5px;letter-spacing:0.8px">Estado de Aprobación</b>' + aprobBadge(est) +
+      '</div>' +
+      (r.aprobado_por_nombre ? '<div class="aprob-meta">Aprobado/Revisado por: <b>' + esc(r.aprobado_por_nombre) + '</b></div>' : '') +
+      (r.aprobado_en ? '<div class="aprob-meta">Fecha: <b>' + fmtDate(r.aprobado_en) + '</b></div>' : '') +
+      (r.rechazado_motivo ? '<div class="aprob-meta">Motivo: <b>' + esc(r.rechazado_motivo) + '</b></div>' : '') +
+      (canApprove ? '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button class="btn ok" data-action="aprobarRegistro" data-id="' + esc(r.id) + '">✓ Aprobar</button>' +
+        '<button class="btn danger" data-action="rechazarRegistro" data-id="' + esc(r.id) + '">✕ Rechazar</button>' +
+      '</div>' : '') +
+    '</div>';
+
+  UI.modal('<div class="flex sp" style="flex-wrap:wrap;gap:16px;align-items:flex-start">' +
+      '<div><h2 style="margin-bottom:6px">' + esc(r.nombre) + '</h2>' +
+      '<p class="small">Registro N° <b style="color:var(--accent)">' + esc(r.numero||'') + '</b> · ' + esc(r.tipo || '') + ' · ' + fmtDate(r.created) + '</p></div>' +
+      (imgSrc ? '<img src="' + esc(imgSrc) + '" class="detail-photo" alt="">' : '') +
+    '</div>' +
+    aprobBox +
+    '<div class="detail-grid">' +
+      row('C.I.', r.ci) + row('Sexo', r.sexo) + row('Fecha de Nacimiento', r.fecha_nac) +
+      row('Profesión', r.profesion) + row('Ocupación', r.ocupacion) +
+      row('Institución Educativa', r.institucion) + row('Nivel de Instrucción', r.nivel_inst) +
+      row('Área', r.area) + row('Sector donde activa', r.sector_activa) +
+      row('Estado', r.estado) + row('Municipio', r.municipio) + row('Parroquia', r.parroquia) +
+      row('Sector', r.sector) + row('Residencia', r.residencia) +
+      row('Teléfono', r.telefono) + row('E-mail', r.email) +
+    '</div>' +
+    '<div class="section flex sp" style="justify-content:flex-end;margin-top:16px">' +
+      '<button class="btn ok" data-action="imprimirPlanillaIndividual" data-estado="' + esc(estado) + '" data-municipio="' + esc(municipio) + '" data-ci="' + esc(r.ci) + '">🖨️ Imprimir Ficha</button>' +
+      '<button class="btn sec" data-action="closeModal">Cerrar</button></div>');
+}
+
+/* ============================================================
+   REGLAMENTO MEP (informativo)
+============================================================ */
+function renderReglamento(){
+  return '<div class="card"><h2>📖 Reglamento MEP</h2>' +
+    '<p class="small" style="margin-top:6px">Reglamento interno del Movimiento Electoral del Pueblo (partido madre de la JMEP).</p>' +
+    '<div class="section" style="padding:16px;background:linear-gradient(135deg,rgba(108,15,163,0.25) 0%,rgba(255,230,0,0.06) 100%);border-left:3px solid var(--accent);border-radius:var(--radius-sm)">' +
+      '<b style="color:var(--accent);font-size:15px">Documento de consulta</b>' +
+      '<p class="small" style="margin-top:8px;line-height:1.6">Las normas del partido rigen la participación de los jóvenes dentro de la estructura. Consultá el reglamento completo en los archivos internos de la organización.</p>' +
+    '</div>' +
+    '<div class="section"><p class="small">Para el texto completo contactá a la Dirección Nacional de la Juventud.</p></div></div>';
+}
+
+/* ---------- IMPRESIONES ---------- */
+function printHTML(html){ document.getElementById('printArea').innerHTML = html; window.print(); }
+async function imprimirNacional(){
+  const all = await Api.listRecords({});
+  const estados = Object.keys(ESTADOS);
+  printHTML('<h2>JMEP — Reporte Nacional General</h2>' +
+    '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse">' +
+    '<tr><th>Estado</th><th>Inscritos</th><th>Estatus</th></tr>' +
+    estados.map(e => {
+      const c = all.filter(r => r.estado === e).length;
+      return '<tr><td>' + esc(e) + '</td><td>' + c + '</td><td>' + (c>0?'Activo':'Inactivo') + '</td></tr>';
+    }).join('') +
+    '<tr><td><b>TOTAL NACIONAL</b></td><td><b>' + all.length + '</b></td><td></td></tr></table>' +
+    '<p style="margin-top:12px">Fecha de emisión: ' + new Date().toLocaleString('es-VE') + '</p>');
+}
+async function imprimirEstado(estado){
+  const all = await Api.listRecords({ estado });
+  const municipios = ESTADOS[estado] || [];
+  printHTML('<h2>JMEP — Estado ' + esc(estado) + '</h2>' +
+    '<p>Total en el estado: <b>' + all.length + '</b></p>' +
+    '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;margin-top:10px">' +
+    '<tr><th>Municipio</th><th>Inscritos</th></tr>' +
+    municipios.map(m => '<tr><td>' + esc(m) + '</td><td>' + all.filter(r => r.municipio === m).length + '</td></tr>').join('') +
+    '</table><p style="margin-top:12px">Fecha: ' + new Date().toLocaleString('es-VE') + '</p>');
+}
+async function imprimirMunicipio(estado, municipio){
+  const rows = await Api.listRecords({ estado, municipio });
+  printHTML('<h2>JMEP — Municipio ' + esc(municipio) + ' (' + esc(estado) + ')</h2>' +
+    '<p>Total jóvenes: <b>' + rows.length + '</b></p>' +
+    '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;margin-top:10px">' +
+    '<tr><th>N° JMEP</th><th>Nombres</th><th>C.I.</th><th>Teléfono</th><th>Sexo</th><th>Aprobación</th></tr>' +
+    rows.map(r => '<tr><td>' + esc(r.numero||'') + '</td><td>' + esc(r.nombre) + '</td><td>' + esc(r.ci) + '</td><td>' + esc(r.telefono||'') + '</td><td>' + esc(r.sexo||'') + '</td><td>' + esc(r.aprobacion||'pendiente') + '</td></tr>').join('') +
+    '</table><p style="margin-top:12px">Fecha: ' + new Date().toLocaleString('es-VE') + '</p>');
+}
+async function imprimirPlanillaIndividual(estado, municipio, ci){
+  const rows = await Api.listRecords({ estado, municipio });
+  const r = rows.find(x => normCI(x.ci) === normCI(ci));
+  if(!r) return err('Registro no encontrado.');
+  const imgSrc = safeImgSrc(r.foto || '');
+  const row = (k, v) => v ? '<tr><td style="background:#f2f2f2;font-weight:bold;width:35%;border:1px solid #999;padding:6px">' + esc(k) + '</td><td style="border:1px solid #999;padding:6px">' + esc(v) + '</td></tr>' : '';
+  printHTML('<div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;color:#000">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #6c0fa3;padding-bottom:12px;margin-bottom:16px">' +
+      '<div><h1 style="margin:0;color:#6c0fa3;font-size:20px">JMEP</h1><p style="margin:2px 0;font-size:10px">JUVENTUD DEL MOVIMIENTO ELECTORAL DEL PUEBLO · DIRECCIÓN NACIONAL</p>' +
+      '<h2 style="margin:6px 0 0;font-size:16px">FICHA DE JOVEN</h2>' +
+      '<p style="margin:4px 0;font-size:11px">N° <b>' + esc(r.numero||'') + '</b> · ' + esc(r.tipo || '') + ' · Aprobación: <b>' + esc(r.aprobacion||'pendiente') + '</b></p></div>' +
+      (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:110px;height:140px;object-fit:cover;border:2px solid #6c0fa3">' : '') +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:11.5px">' +
+      row('Nombres y Apellidos', r.nombre) + row('C.I.', r.ci) + row('Sexo', r.sexo) +
+      row('Fecha de Nacimiento', r.fecha_nac) + row('Profesión', r.profesion) +
+      row('Ocupación', r.ocupacion) +
+      '<tr><td colspan="2" style="background:#6c0fa3;color:#fff;font-weight:bold;padding:5px;border:1px solid #6c0fa3">FORMACIÓN</td></tr>' +
+      row('Institución Educativa', r.institucion) + row('Nivel de Instrucción', r.nivel_inst) +
+      row('Área/Especialidad', r.area) +
+      '<tr><td colspan="2" style="background:#6c0fa3;color:#fff;font-weight:bold;padding:5px;border:1px solid #6c0fa3">UBICACIÓN</td></tr>' +
+      row('Estado', r.estado) + row('Municipio', r.municipio) + row('Parroquia', r.parroquia) +
+      row('Sector', r.sector) + row('Residencia', r.residencia) +
+      row('Teléfono', r.telefono) + row('E-mail', r.email) +
+      row('Sector donde activa', r.sector_activa) +
+      (r.aprobado_por_nombre ? row('Aprobado/Revisado por', r.aprobado_por_nombre) : '') +
+      (r.aprobado_en ? row('Fecha de aprobación', fmtDate(r.aprobado_en)) : '') +
+      (r.rechazado_motivo ? row('Motivo del rechazo', r.rechazado_motivo) : '') +
+    '</table>' +
+    '<div style="display:flex;justify-content:space-between;margin-top:35px;font-size:10.5px">' +
+      '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;width:40%">Responsable de Registro</div>' +
+      '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;width:40%">Firma del Joven</div>' +
+    '</div>' +
+    '<p style="text-align:center;margin-top:25px;font-weight:bold;font-size:10px">JUVENTUD DEL MOVIMIENTO ELECTORAL DEL PUEBLO</p>' +
+  '</div>');
+}
+
+/* ============================================================
+   GESTIÓN DE USUARIOS
+============================================================ */
+async function usuariosView(){
+  const actor = state.user;
+  const canSeeNacTab = Permissions.canSeeNacionalesTab(actor);
+  const all = await Api.listUsers();
+
+  const pendientes = all.filter(u => !u.aprobado && u.rol !== Roles.MASTER);
+  const operativos = all.filter(u => (u.rol === Roles.REGIONAL || u.rol === Roles.MUNICIPAL) && u.aprobado);
+  const nacionales = all.filter(u => u.rol === Roles.NACIONAL && u.aprobado);
+  const masters = all.filter(u => u.rol === Roles.MASTER);
+
+  if(!canSeeNacTab && state.userTab !== 'operativos' && state.userTab !== 'pendientes') state.userTab = 'operativos';
+  if(state.userTab === 'nacionales' && !canSeeNacTab) state.userTab = 'operativos';
+
+  const tab = state.userTab;
+  let filtered, btnLabel, btnAs;
+
+  if(tab === 'pendientes') { filtered = pendientes; btnLabel = 'Agregar Usuario'; btnAs = Roles.REGIONAL; }
+  else if(tab === 'nacionales' && canSeeNacTab) { filtered = nacionales; btnLabel = 'Agregar Nacional'; btnAs = Roles.NACIONAL; }
+  else { filtered = operativos; btnLabel = 'Agregar Regional / Municipal'; btnAs = Roles.REGIONAL; }
+
+  const rows = filtered.map(u => {
+    const canManage = Permissions.canManageUser(actor, u);
+    const canToggle = Permissions.canToggleAprobador(actor, u);
+    const imgSrc = safeImgSrc(u.foto || '');
+
+    let actions = canManage
+      ? '<button class="btn sec" style="padding:6px 10px;font-size:11.5px" data-action="cambiarPw" data-id="' + esc(u.id) + '">Clave</button> ' +
+        '<button class="btn danger" style="padding:6px 10px;font-size:11.5px" data-action="eliminarUsuario" data-id="' + esc(u.id) + '">Eliminar</button>'
+      : '<span class="small">—</span>';
+
+    if(canToggle){
+      actions = '<button class="btn ' + (u.es_aprobador ? 'ok' : 'sec') + '" style="padding:6px 10px;font-size:11.5px" data-action="toggleAprobador" data-id="' + esc(u.id) + '" data-value="' + (u.es_aprobador ? '0' : '1') + '">' +
+        (u.es_aprobador ? '✓ Aprobador' : 'Designar Aprobador') + '</button> ' + actions;
+    }
+    if (!u.aprobado && Permissions.isMaster(actor)) {
+        actions = `<button class="btn ok" style="padding:6px 10px;font-size:11.5px;animation:pulseGlow 2s infinite" data-action="aprobarUsuario" data-id="${u.id}">✓ Aprobar Cuenta</button> ` + actions;
+    }
+
+    return '<tr><td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+      '<td>' + esc(u.nombre) + ' ' + esc(u.apellido) + '</td><td>' + esc(u.ci) + '</td><td>' + esc(u.telefono) + '</td>' +
+      '<td>' + esc(u.rol) + (u.es_aprobador ? ' <span class="badge master" style="font-size:9.5px">APROBADOR</span>' : '') + '</td>' +
+      '<td>' + esc(u.estado || '') + (u.municipio ? ' / ' + esc(u.municipio) : '') + '</td>' +
+      '<td>' + (u.aprobado ? '<span class="badge green">Aprobado</span>' : '<span class="badge warn">Pendiente</span>') + '</td>' +
+      '<td>' + actions + '</td></tr>';
+  }).join('');
+
+  let tabsHtml = '<div class="tabs section">';
+  if (Permissions.isMaster(actor)) {
+      tabsHtml += `<button type="button" class="tab ${tab==='pendientes'?'active':''}" data-action="setUserTab" data-tab="pendientes">⏳ Por Aprobar (${pendientes.length})</button>`;
+  }
+  tabsHtml += `<button type="button" class="tab ${tab==='operativos'?'active':''}" data-action="setUserTab" data-tab="operativos">Regionales / Municipales (${operativos.length})</button>`;
+  if (canSeeNacTab) {
+      tabsHtml += `<button type="button" class="tab ${tab==='nacionales'?'active':''}" data-action="setUserTab" data-tab="nacionales">Nacionales (${nacionales.length})</button>`;
+  }
+  tabsHtml += '</div>';
+
+  const masterBlock = Permissions.isMaster(actor) && masters.length
+    ? '<div class="section"><h3 style="margin-bottom:8px">Cuenta Master</h3><div class="table-responsive"><table><thead><tr><th>Foto</th><th>Nombre</th><th>CI</th><th>Teléfono</th><th>Rol</th><th>Ubicación</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody>' +
+      masters.map(u => {
+        const imgSrc = safeImgSrc(u.foto || '');
+        return '<tr><td>' + (imgSrc ? '<img src="' + esc(imgSrc) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)" alt="">' : '<span class="small">—</span>') + '</td>' +
+          '<td>' + esc(u.nombre) + ' ' + esc(u.apellido) + '</td><td>' + esc(u.ci) + '</td><td>' + esc(u.telefono) + '</td>' +
+          '<td><span class="badge master">' + esc(u.rol) + '</span></td><td>—</td><td><span class="badge green">Aprobado</span></td><td><span class="small">—</span></td></tr>';
+      }).join('') + '</tbody></table></div></div>' : '';
+
+  const aprobadoresCount = nacionales.filter(u => u.es_aprobador).length;
+  const aprobNote = tab === 'nacionales'
+    ? '<div class="readonly-banner" style="margin-top:14px">🔑 <b>' + aprobadoresCount + '</b> aprobador(es) designado(s). Solo usuarios con el rol <b>Nacional</b> y la marca <b>Aprobador</b> pueden aprobar/rechazar registros de jóvenes.</div>'
+    : '';
+
+  return '<div class="card"><h2>Gestión de Usuarios</h2>' + tabsHtml +
+    '<div class="section"><button class="btn ok" data-action="abrirRegistro" data-as="' + esc(btnAs) + '">' + esc(btnLabel) + '</button></div>' +
+    aprobNote +
+    '<div class="table-responsive"><table><thead><tr><th>Foto</th><th>Nombre</th><th>CI</th><th>Teléfono</th><th>Rol</th><th>Ubicación</th><th>Estatus</th><th>Acciones</th></tr></thead>' +
+    '<tbody>' + (rows || '<tr><td colspan="8" style="text-align:center;padding:20px">No hay usuarios en esta categoría.</td></tr>') + '</tbody></table></div>' + masterBlock + '</div>';
+}
+
+function abrirRegistro(asRol){
+  const allowed = Permissions.creatableRoles(state.user);
+  if(!allowed.length) return err('No tenés permisos para crear usuarios.');
+  if(asRol && !allowed.includes(asRol)) return err('No autorizado para este rol.');
+  state.registerRole = asRol || allowed[0];
+  state.view = 'register';
+  render();
+}
+function setUserTab(tab){
+  if(tab === 'nacionales' && !Permissions.canSeeNacionalesTab(state.user)) return err('No autorizado.');
+  state.userTab = tab;
+  renderTabContent();
+}
+async function cambiarPw(id){
+  const target = (await Api.listUsers()).find(u => u.id === id);
+  if(!target) return err('Usuario no encontrado.');
+  if(!Permissions.canManageUser(state.user, target)) return err('No tenés permisos.');
+  const pw = prompt('Nueva contraseña para ' + target.nombre + ' ' + target.apellido + ' (mínimo 8 caracteres):');
+  if(!pw) return;
+  if(pw.length < 8) return err('La contraseña debe tener al menos 8 caracteres.');
+  try{ await Api.changePassword(state.user, id, pw); ok('Contraseña actualizada con éxito.'); }
+  catch(e){ err(e.message); }
+}
+async function eliminarUsuario(id){
+  const target = (await Api.listUsers()).find(u => u.id === id);
+  if(!target) return err('Usuario no encontrado.');
+  if(!Permissions.canManageUser(state.user, target)) return err('No tenés permisos.');
+  if(!confirm('¿Confirma eliminar al usuario ' + target.nombre + ' ' + target.apellido + '?')) return;
+  try{ await Api.deleteUser(state.user, id); ok('Usuario eliminado.'); renderTabContent(); }
+  catch(e){ err(e.message); }
+}
+async function toggleAprobador(id, value){
+  const target = (await Api.listUsers()).find(u => u.id === id);
+  if(!target) return err('Usuario no encontrado.');
+  if(!Permissions.canToggleAprobador(state.user, target)) return err('No autorizado.');
+  try{
+    await Api.toggleAprobador(state.user, id, !!value);
+    ok(value ? 'Usuario designado como aprobador.' : 'Designación de aprobador removida.');
+    renderTabContent();
+  }catch(e){ err(e.message); }
+}
+async function aprobarUsuario(id){
+  try{
+    await Api.aprobarUsuario(id);
+    ok('✅ Usuario aprobado. Ya puede iniciar sesión.');
+    renderTabContent(); renderTabs();
+  }catch(e){ err(e.message || 'Error al aprobar usuario.'); }
+}
+
+/* ---------- USUARIOS ACTIVOS ---------- */
+async function activosView(){
+  const a = await Api.active.list();
+  const rows = a.map(x => '<tr><td>' + esc(x.nombre) + '</td><td>' + esc(x.rol) + '</td><td>' + fmtDate(x.ts) + '</td></tr>').join('');
+  return '<div class="card"><h2>Usuarios Activos en Línea</h2><p class="small">Se actualiza automáticamente cada 4 segundos.</p>' +
+    '<div class="table-responsive"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Última Conexión</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="3">No hay usuarios activos en este momento.</td></tr>') + '</tbody></table></div></div>';
+}
+
+/* ---------- HISTORIAL ---------- */
+async function historialView(){
+  const filtro = state.histFiltro || 'hoy';
+  const h = await Api.history.list(filtro);
+  const rows = h.map(x => '<tr><td>' + esc(x.nombre) + '</td><td>' + esc(x.rol) + '</td>' +
+      '<td>' + esc(x.estado || '') + (x.municipio ? ' / ' + esc(x.municipio) : '') + '</td>' +
+      '<td>' + fmtDate(x.ts) + '</td></tr>').join('');
+  return '<div class="card"><h2>Historial de Conexiones</h2>' +
+    '<div class="tabs section">' +
+      ['hoy','semana','mes'].map(f =>
+        '<button type="button" class="tab ' + (filtro===f?'active':'') + '" data-action="setHistFiltro" data-filtro="' + esc(f) + '">' +
+          (f === 'hoy' ? 'Hoy' : f === 'semana' ? 'Última Semana' : 'Último Mes') + '</button>'
+      ).join('') + '</div>' +
+    '<p class="small">Registros históricos guardados por seguridad.</p>' +
+    '<div class="table-responsive"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Ubicación</th><th>Fecha y Hora</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="4">Sin registros en el historial.</td></tr>') + '</tbody></table></div></div>';
+}
+function setHistFiltro(f){ state.histFiltro = f; renderTabContent(); }
+
+/* ============================================================
+   CAMBIO DE LOGO (SOLO MASTER)
+============================================================ */
+let newLogoData = null;
+function abrirCambioLogo(){
+  if(!Permissions.isMaster(state.user)) return err('Solo el Master puede cambiar el logo.');
+  newLogoData = null;
+  const current = DB.get('custom_logo', null) || CONFIG.LOGO_SRC;
+  UI.modal(
+    '<h2>Cambiar Logo de la Aplicación</h2>' +
+    '<p class="small" style="margin-top:6px">Sube una imagen para reemplazar el logo en toda la app.</p>' +
+    '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px">' +
+      '<div style="width:220px;height:160px;border:2px dashed var(--border-light);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(20,7,32,0.6);flex-shrink:0">' +
+        '<img id="logoPreviewImg" src="' + esc(current) + '" style="max-width:100%;max-height:100%;object-fit:contain" alt="">' +
+      '</div>' +
+      '<div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px">' +
+        '<button class="btn" data-action="triggerLogoFile">📁 Seleccionar Imagen</button>' +
+        '<button class="btn ok" data-action="guardarLogo" id="logoGuardarBtn" disabled>💾 Guardar Logo</button>' +
+        '<div class="photo-hint">Recomendado: PNG/JPG horizontal, máx. 800px de ancho.</div>' +
+      '</div>' +
+    '</div>' +
+    '<input type="file" accept="image/*" id="logoFileInput" style="display:none">' +
+    '<div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">' +
+      '<button class="btn sec" data-action="closeModal">Cancelar</button>' +
+    '</div>'
+  );
+  const input = document.getElementById('logoFileInput');
+  if(input) input.addEventListener('change', handleLogoFile);
+}
+
+async function handleLogoFile(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(!/^image\//.test(file.type)){ err('El archivo no es una imagen.'); e.target.value=''; return; }
+  if(file.size > 5 * 1024 * 1024){ err('Imagen demasiado grande (máx 5 MB).'); e.target.value=''; return; }
+  try{
+    const dataUrl = await compressImage(file, 800, 0.85);
+    newLogoData = dataUrl;
+    const img = document.getElementById('logoPreviewImg');
+    if(img) img.src = dataUrl;
+    const btn = document.getElementById('logoGuardarBtn');
+    if(btn) btn.disabled = false;
+    ok('Imagen lista. Pulse "Guardar Logo".');
+  }catch(ex){ err('Error al procesar la imagen.'); }
+  e.target.value = '';
+}
+
+function guardarLogo(){
+  if(!Permissions.isMaster(state.user)) return err('Solo el Master puede cambiar el logo.');
+  if(!newLogoData) return err('Seleccione una imagen primero.');
+  try{
+    DB.set('custom_logo', newLogoData);
+    newLogoData = null;
+    UI.closeModal();
+    ok('✅ Logo actualizado.');
+    setTimeout(() => render(), 400);
+  }catch(ex){
+    err('No se pudo guardar. Intente con una imagen más pequeña.');
+  }
+}
+
+function resetLogo(){
+  if(!Permissions.isMaster(state.user)) return err('Solo el Master puede cambiar el logo.');
+  if(!confirm('¿Restaurar el logo original de la aplicación?')) return;
+  DB.remove('custom_logo');
+  ok('Logo restaurado al original.');
+  render();
+}
+
+/* ============================================================
+   ACTIONS BINDING
+============================================================ */
+const Actions = {
+  togglePw(el){ const i = document.getElementById(el.dataset.target); if(!i) return; if(i.type === 'password'){ i.type = 'text'; el.textContent = 'Ocultar'; } else { i.type = 'password'; el.textContent = 'Mostrar'; } },
+  triggerCamera(el){ const i = document.getElementById('cam_' + el.dataset.id); if(i) i.click(); },
+  triggerFile(el){ const i = document.getElementById('file_' + el.dataset.id); if(i) i.click(); },
+  goRecover(){ state.view = 'recover'; render(); },
+  goPublicRegister(){ state.view = 'register'; state.user = null; render(); },
+  volverInicio(){ volverInicio(); },
+  doLogin(){ doLogin(); },
+  doRegister(){ doRegister(); },
+  doRecover(){ doRecover(); },
+  aceptarPoliticas(){ aceptarPoliticas(); },
+  logout(){ logout(); },
+  changeTab(el){ changeTab(el.dataset.tab); },
+  mostrarFormulario(el){ mostrarFormulario(el.dataset.tipo); },
+  volverCarga(){ volverCarga(); },
+  resetBatch(){ resetBatch(); },
+  nuevoRegistro(){ nuevoRegistro(); },
+  finalizarCarga(){ finalizarCarga(); },
+  guardarFormulario(el){ guardarFormulario(el.dataset.tipo, el.dataset.id); },
+  toggleCollapseRO(el){ toggleCollapseRO(el.dataset.idx); },
+  reporteEstadoDetalle(el){ reporteEstadoDetalle(el.dataset.estado); },
+  verPlanillas(el){ verPlanillas(el.dataset.estado, el.dataset.municipio); },
+  verPlanillaDetalle(el){ verPlanillaDetalle(el.dataset.estado, el.dataset.municipio, el.dataset.ci); },
+  imprimirNacional(){ imprimirNacional(); },
+  imprimirEstado(el){ imprimirEstado(el.dataset.estado); },
+  imprimirMunicipio(el){ imprimirMunicipio(el.dataset.estado, el.dataset.municipio); },
+  imprimirPlanillaIndividual(el){ imprimirPlanillaIndividual(el.dataset.estado, el.dataset.municipio, el.dataset.ci); },
+  abrirRegistro(el){ abrirRegistro(el.dataset.as); },
+  setUserTab(el){ setUserTab(el.dataset.tab); },
+  cambiarPw(el){ cambiarPw(el.dataset.id); },
+  eliminarUsuario(el){ eliminarUsuario(el.dataset.id); },
+  toggleAprobador(el){ toggleAprobador(el.dataset.id, el.dataset.value === '1'); },
+  aprobarUsuario(el){ aprobarUsuario(el.dataset.id); },
+  setHistFiltro(el){ setHistFiltro(el.dataset.filtro); },
+  setApprovalFilter(el){ setApprovalFilter(el.dataset.filtro); },
+  aprobarRegistro(el){ aprobarRegistro(el.dataset.id); },
+  rechazarRegistro(el){ rechazarRegistro(el.dataset.id); },
+  confirmarRechazo(el){ confirmarRechazo(el.dataset.id); },
+  abrirCambioLogo(){ abrirCambioLogo(); },
+  triggerLogoFile(){ const i = document.getElementById('logoFileInput'); if(i) i.click(); },
+  guardarLogo(){ guardarLogo(); },
+  resetLogo(){ resetLogo(); },
+  closeModal(){ UI.closeModal(); }
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const fn = Actions[el.dataset.action];
+  if(typeof fn !== 'function') return;
+  e.preventDefault();
+  fn(el, e);
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if(t.id && t.id.startsWith('cam_')){ handlePhotoInput(t, t.id.slice(4)); return; }
+  if(t.id && t.id.startsWith('file_')){ handlePhotoInput(t, t.id.slice(5)); return; }
+  if(t.id === 'ap_estado'){
+    state.approvalEstado = t.value;
+    state.approvalMunicipio = '';
+    renderTabContent(); return;
+  }
+  if(t.id === 'ap_muni'){ state.approvalMunicipio = t.value; renderTabContent(); return; }
+  const el = t.closest && t.closest('[data-change]');
+  if(!el) return;
+  if(el.dataset.change === 'rolChange') onRolChange();
+  else if(el.dataset.change === 'estadoMunicipio') onEstadoMunicipioChange(el.dataset.source || el.id);
+  else if(el.dataset.change === 'mepPreview') updateJmepPreview(t.id.replace('f_muni_',''));
+});
+
+/* ============================================================
+   DO LOGIN
+============================================================ */
+async function doLogin(){
+  if(state.busy) return;
+  const ciEl = document.getElementById('li_ci');
+  const pwEl = document.getElementById('li_pw');
+  if(!ciEl || !pwEl) return;
+  const ci = ciEl.value.trim();
+  const pw = pwEl.value;
+  if(!ci || !pw) return err('Complete todos los campos.');
+  if(!isValidCI(ci)) return err('Cédula inválida (5 a 9 dígitos).');
+
+  state.busy = true;
+  let loginOk = false;
+  try{
+    state.user = await Api.login(ci, pw);
+    state.view = 'dashboard';
+    state.tab = (state.user.rol === Roles.REGIONAL || state.user.rol === Roles.MUNICIPAL) ? 'cargar' : 'inicio';
+    state.batchCount = 0; state.batchTipo = null;
+    state.userTab = 'pendientes';
+    state.approvalFilter = 'pendiente'; state.approvalEstado = ''; state.approvalMunicipio = '';
+    loginOk = true;
+    ok('Bienvenido, ' + state.user.nombre);
+  }catch(e){
+    let msg = e.message || 'Credenciales incorrectas.';
+    if(e.status === 400 || e.status === 403 || (msg && (msg.toLowerCase().includes('requirements') || msg.toLowerCase().includes('rule') || msg.toLowerCase().includes('unauthorized')))) {
+        msg = 'Credenciales inválidas o cuenta PENDIENTE DE APROBACIÓN por el Master.';
+    }
+    err(msg);
+  }
+  finally{ state.busy = false; }
+  if(loginOk) render();
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+(async function init(){
+  try{
+    await Api.history.purge();
+    const stored = DB.get('session', null);
+    if(stored && stored.id){
+      const u = await Api.validateSession(stored);
+      if(u){
+        state.user = u;
+        state.view = 'dashboard';
+        state.tab = (u.rol === Roles.REGIONAL || u.rol === Roles.MUNICIPAL) ? 'cargar' : 'inicio';
+        if(u.rol === Roles.MASTER) state.userTab = 'pendientes';
+      } else { DB.remove('session'); }
+    }
+  }catch(e){ console.warn('init', e); }
+  render();
+})();
+
+/* Aviso al salir con lote a medias */
+window.addEventListener('beforeunload', e => {
+  if(state.batchCount > 0){
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
+</script>
+</body>
+</html>
