@@ -588,7 +588,8 @@ function userSessionFromRecord(u){
       if (typeof fileField === 'string' && (fileField.startsWith('http') || fileField.startsWith('data:image'))) {
           fotoUrl = fileField;
       } else if (pb) {
-          fotoUrl = pb.files.getUrl(u, fileField);
+          // Construcción manual de la URL para garantizar que siempre funcione
+          fotoUrl = CONFIG.PB_URL + '/api/files/' + CONFIG.COL.USERS + '/' + u.id + '/' + fileField;
       }
   }
   
@@ -757,7 +758,7 @@ const Api = {
       if(filter.aprobacion) parts.push(`aprobacion="${filter.aprobacion}"`);
       const opts = parts.length ? { filter: parts.join(' && '), sort:'-created' } : { sort:'-created' };
       const list = await pb.collection(CONFIG.COL.RECORDS).getFullList(opts);
-      return list.map(r => ({ ...r, aprobacion: r.aprobacion || APROBACION.PENDIENTE, foto: r.foto ? pb.files.getUrl(r, r.foto) : '' }));
+      return list.map(r => ({ ...r, aprobacion: r.aprobacion || APROBACION.PENDIENTE, foto: r.foto ? CONFIG.PB_URL + '/api/files/' + CONFIG.COL.RECORDS + '/' + r.id + '/' + r.foto : '' }));
     }
     let r = DB.get('records', []);
     if(filter.tipo) r = r.filter(x => x.tipo === filter.tipo);
