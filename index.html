@@ -344,7 +344,6 @@ const CONFIG = {
   HISTORY_TTL_MS: 30 * 24 * 60 * 60 * 1000,
   SESSION_TTL_MS: 30 * 24 * 60 * 60 * 1000, // 1 Mes
   ACTIVE_TTL_MS: 5 * 60 * 1000,
-  // URL de tu imagen en el repositorio de GitHub
   LOGO_SRC: 'https://raw.githubusercontent.com/xabcreativo-lgtm/jmep-app/main/icon-192.png',
   POLITICAS_TEXTO: 'Bienvenido a la Juventud del Movimiento Electoral del Pueblo (JMEP). Sus datos serán tratados de acuerdo a las normas venezolanas vigentes. Mantenga su información actualizada.',
   MAX_NACIONALES: 10,
@@ -594,17 +593,33 @@ function userSessionFromRecord(u){
    API
 ============================================================ */
 const Api = {
-  async login(ci, pw){
+  async login(identity, pw){
     if(CONFIG.USE_POCKETBASE){
       await pbLoad;
-      const auth = await pb.collection(CONFIG.COL.USERS).authWithPassword(normCI(ci), pw);
+      let auth;
+      try {
+        // Intento 1: Como cédula normalizada (V-12345678)
+        auth = await pb.collection(CONFIG.COL.USERS).authWithPassword(normCI(identity), pw);
+      } catch (e1) {
+        try {
+          // Intento 2: Tal cual lo escribió el usuario (andres o 12345678)
+          auth = await pb.collection(CONFIG.COL.USERS).authWithPassword(identity, pw);
+        } catch (e2) {
+          try {
+            // Intento 3: En mayúsculas
+            auth = await pb.collection(CONFIG.COL.USERS).authWithPassword(identity.toUpperCase(), pw);
+          } catch (e3) {
+            throw new Error('Usuario o contraseña incorrectos. Verifique sus datos.');
+          }
+        }
+      }
       const u = auth.record;
       const sess = userSessionFromRecord(u);
       await Api.history.log(sess);
       return sess;
     }
     const users = DB.get('users', []);
-    const u = users.find(x => normCI(x.ci) === normCI(ci) && x.password === devHash(pw));
+    const u = users.find(x => normCI(x.ci) === normCI(identity) && x.password === devHash(pw));
     if(!u) throw new Error('Credenciales inválidas.');
     const sess = userSessionFromRecord(u);
     DB.set('session', sess);
@@ -969,8 +984,8 @@ function renderLogin(){
       '<div class="login-logo">' + logoHtml(240) + '</div>' +
       '<h1>JMEP</h1>' +
       '<p class="sub">Juventud del Movimiento Electoral del Pueblo · Registro de Jóvenes</p>' +
-      '<label>Cédula de Identidad <span class="hint">(solo número)</span></label>' +
-      '<input id="li_ci" maxlength="12" autocomplete="username" inputmode="numeric" placeholder="Ej: 10000001">' +
+      '<label>Cédula o Usuario <span class="hint">(Ej: V-12345678 o andres)</span></label>' +
+      '<input id="li_ci" maxlength="20" autocomplete="username" placeholder="Ej: 10000001">' +
       '<label>Contraseña</label>' +
       '<div class="field">' +
         '<input id="li_pw" type="password" maxlength="128" autocomplete="current-password" placeholder="••••••••">' +
@@ -2199,22 +2214,21 @@ document.addEventListener('change', e => {
 });
 
 /* ============================================================
-   DO LOGIN (CON TIEMPO DE SESIÓN)
+   DO LOGIN (CON MULTI-INTENTO)
 ============================================================ */
 async function doLogin(){
   if(state.busy) return;
   const ciEl = document.getElementById('li_ci');
   const pwEl = document.getElementById('li_pw');
   if(!ciEl || !pwEl) return;
-  const ci = ciEl.value.trim();
+  const identity = ciEl.value.trim();
   const pw = pwEl.value;
-  if(!ci || !pw) return err('Complete todos los campos.');
-  if(!isValidCI(ci)) return err('Cédula inválida (5 a 9 dígitos).');
+  if(!identity || !pw) return err('Complete todos los campos.');
 
   state.busy = true;
   let loginOk = false;
   try{
-    state.user = await Api.login(ci, pw);
+    state.user = await Api.login(identity, pw);
 
     // VALIDACIÓN EXTRA: Bloquear si no está aprobado
     if (!state.user.aprobado) {
@@ -2234,14 +2248,8 @@ async function doLogin(){
     ok('Bienvenido, ' + state.user.nombre);
   }catch(e){
     let msg = e.message || 'Credenciales incorrectas.';
-    if (e.status === 400) {
-        msg = 'Credenciales incorrectas. Verifique su cédula y contraseña.';
-    } else if (e.status === 403) {
-        msg = 'No tiene permiso para ingresar. Verifique con el Master.';
-    } else if (msg && msg.includes('PENDIENTE')) {
-        // Mantiene el mensaje original
-    } else {
-        msg = 'Error de conexión. Intente de nuevo.';
+    if (msg.includes('Failed to authenticate') || e.status === 400) {
+        msg = 'Cédula/Usuario o contraseña incorrectos. Intente de nuevo.';
     }
     err(msg);
   }
@@ -2258,8 +2266,13 @@ async function doLogin(){
     await pbLoad; // Asegurar que PocketBase SDK cargó
 
     if (pb && pb.authStore.isValid) {
-        const loginTime = parseInt(localStorage.getItem('jmep_login_time') || '0', 10);
-        
+        let loginTime = parseInt(localStorage.getItem('jmep_login_time') || '0', 10);
+        if (loginTime === 0) {
+            // Si no hay registro de tiempo, lo inicializamos para no sacar al usuario
+            loginTime = Date.now();
+            localStorage.setItem('jmep_login_time', loginTime.toString());
+        }
+
         // Verificar si la sesión superó el mes (30 días)
         if (Date.now() - loginTime > CONFIG.SESSION_TTL_MS) {
             pb.authStore.clear();
