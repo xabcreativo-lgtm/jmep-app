@@ -344,7 +344,6 @@ const CONFIG = {
   HISTORY_TTL_MS: 30 * 24 * 60 * 60 * 1000,
   SESSION_TTL_MS: 30 * 24 * 60 * 60 * 1000, // 1 Mes
   ACTIVE_TTL_MS: 5 * 60 * 1000,
-  // URL de tu imagen en el repositorio de GitHub
   LOGO_SRC: 'https://raw.githubusercontent.com/xabcreativo-lgtm/jmep-app/main/icon-192.png',
   POLITICAS_TEXTO: 'Bienvenido a la Juventud del Movimiento Electoral del Pueblo (JMEP). Sus datos serán tratados de acuerdo a las normas venezolanas vigentes. Mantenga su información actualizada.',
   MAX_NACIONALES: 10,
@@ -581,12 +580,22 @@ function isAuthError(e){
   return e && (e.status === 401 || e.status === 403) && !!(e.message && /auth|token|unauth|forbidden|credentials/i.test(e.message));
 }
 function userSessionFromRecord(u){
-  // Buscar en 'avatar' o en 'foto' por si acaso
-  const fileField = u.avatar || u.foto; 
+  let fileField = u.avatar || u.foto; 
+  if (Array.isArray(fileField)) fileField = fileField[0];
+  
+  let fotoUrl = '';
+  if (fileField) {
+      if (typeof fileField === 'string' && (fileField.startsWith('http') || fileField.startsWith('data:image'))) {
+          fotoUrl = fileField;
+      } else if (pb) {
+          fotoUrl = pb.files.getUrl(u, fileField);
+      }
+  }
+  
   return {
     id:u.id, nombre:u.nombre, apellido:u.apellido, ci:u.ci, telefono:u.telefono,
     rol:u.rol, estado:u.estado||'', municipio:u.municipio||'',
-    foto: fileField ? (typeof fileField === 'string' ? fileField : (pb ? pb.files.getUrl(u, fileField) : '')) : '',
+    foto: fotoUrl,
     es_aprobador: !!u.es_aprobador,
     aprobado: !!u.aprobado
   };
@@ -625,7 +634,10 @@ const Api = {
       fd.append('email', data.email || (normCI(data.ci).toLowerCase().replace(/[^a-z0-9]/g,'')+'@jmep.local'));
       fd.append('es_aprobador', data.es_aprobador ? true : false);
       fd.append('aprobado', false);
-      if(data._fotoFile) fd.append('foto', data._fotoFile);
+      if(data._fotoFile) {
+        fd.append('avatar', data._fotoFile);
+        fd.append('foto', data._fotoFile);
+      }
       const rec = await pb.collection(CONFIG.COL.USERS).create(fd);
       return userSessionFromRecord(rec);
     }
@@ -1190,7 +1202,6 @@ function renderDashboard(){
   else rolTxt = 'Municipal — ' + u.municipio;
   const badgeCls = u.rol === Roles.MASTER ? 'badge master' : 'badge';
   
-  // Topbar Meta (Estado en vez de Cédula)
   let metaTxt = u.estado || 'Nacional';
   if(u.rol === Roles.MUNICIPAL && u.municipio) metaTxt = u.estado + ' / ' + u.municipio;
 
