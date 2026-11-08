@@ -344,7 +344,8 @@ const CONFIG = {
   HISTORY_TTL_MS: 30 * 24 * 60 * 60 * 1000,
   SESSION_TTL_MS: 30 * 24 * 60 * 60 * 1000, // 1 Mes
   ACTIVE_TTL_MS: 5 * 60 * 1000,
-  LOGO_SRC: 'icon-192.png', // Imagen de tu repo
+  // URL de tu imagen en el repositorio de GitHub
+  LOGO_SRC: 'https://raw.githubusercontent.com/xabcreativo-lgtm/jmep-app/main/icon-192.png',
   POLITICAS_TEXTO: 'Bienvenido a la Juventud del Movimiento Electoral del Pueblo (JMEP). Sus datos serán tratados de acuerdo a las normas venezolanas vigentes. Mantenga su información actualizada.',
   MAX_NACIONALES: 10,
   MAX_JMEP_RETRY: 5
@@ -2198,7 +2199,7 @@ document.addEventListener('change', e => {
 });
 
 /* ============================================================
-   DO LOGIN (CON VALIDACIÓN EXTRA Y TIEMPO DE SESIÓN)
+   DO LOGIN (CON TIEMPO DE SESIÓN)
 ============================================================ */
 async function doLogin(){
   if(state.busy) return;
@@ -2233,8 +2234,14 @@ async function doLogin(){
     ok('Bienvenido, ' + state.user.nombre);
   }catch(e){
     let msg = e.message || 'Credenciales incorrectas.';
-    if(e.status === 400 || e.status === 403 || (msg && (msg.toLowerCase().includes('requirements') || msg.toLowerCase().includes('rule') || msg.toLowerCase().includes('unauthorized')))) {
-        msg = 'Credenciales inválidas o cuenta PENDIENTE DE APROBACIÓN.';
+    if (e.status === 400) {
+        msg = 'Credenciales incorrectas. Verifique su cédula y contraseña.';
+    } else if (e.status === 403) {
+        msg = 'No tiene permiso para ingresar. Verifique con el Master.';
+    } else if (msg && msg.includes('PENDIENTE')) {
+        // Mantiene el mensaje original
+    } else {
+        msg = 'Error de conexión. Intente de nuevo.';
     }
     err(msg);
   }
