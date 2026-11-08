@@ -420,7 +420,7 @@ function devHash(pw){ let h=0; for(let i=0;i<pw.length;i++){ h=((h<<5)-h)+pw.cha
 function cleanAlpha(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z]/g,'').toUpperCase(); }
 function shortCode(s, len){ len = len || 4; let t = cleanAlpha(s); if(!t) return 'XXXX'; if(t.length < len) t = t.padEnd(len,'X'); return t.slice(0,len); }
 
-/* Numeración JMEP — Tipo Regional = JMEP-REG-{EST}-NNNN ; Municipal = JMEP-MUN-{MUN}-NNNN */
+/* Numeración JMEP */
 function jmepPrefix(tipo, estado, municipio){
   if(tipo === 'Regional') return 'JMEP-REG-' + shortCode(estado,4);
   return 'JMEP-MUN-' + shortCode(municipio,4);
@@ -2249,7 +2249,7 @@ document.addEventListener('change', e => {
 });
 
 /* ============================================================
-   DO LOGIN
+   DO LOGIN (CON VALIDACIÓN EXTRA)
 ============================================================ */
 async function doLogin(){
   if(state.busy) return;
@@ -2265,6 +2265,13 @@ async function doLogin(){
   let loginOk = false;
   try{
     state.user = await Api.login(ci, pw);
+
+    // VALIDACIÓN EXTRA: Bloquear si no está aprobado
+    if (!state.user.aprobado) {
+       await Api.logout(); // Borra la sesión
+       throw new Error('Tu cuenta está PENDIENTE DE APROBACIÓN por el Master.');
+    }
+
     state.view = 'dashboard';
     state.tab = (state.user.rol === Roles.REGIONAL || state.user.rol === Roles.MUNICIPAL) ? 'cargar' : 'inicio';
     state.batchCount = 0; state.batchTipo = null;
@@ -2275,7 +2282,7 @@ async function doLogin(){
   }catch(e){
     let msg = e.message || 'Credenciales incorrectas.';
     if(e.status === 400 || e.status === 403 || (msg && (msg.toLowerCase().includes('requirements') || msg.toLowerCase().includes('rule') || msg.toLowerCase().includes('unauthorized')))) {
-        msg = 'Credenciales inválidas o cuenta PENDIENTE DE APROBACIÓN por el Master.';
+        msg = 'Credenciales inválidas o cuenta PENDIENTE DE APROBACIÓN.';
     }
     err(msg);
   }
@@ -2293,10 +2300,15 @@ async function doLogin(){
     if(stored && stored.id){
       const u = await Api.validateSession(stored);
       if(u){
-        state.user = u;
-        state.view = 'dashboard';
-        state.tab = (u.rol === Roles.REGIONAL || u.rol === Roles.MUNICIPAL) ? 'cargar' : 'inicio';
-        if(u.rol === Roles.MASTER) state.userTab = 'pendientes';
+        // Validación de seguridad al recargar la página
+        if(!u.aprobado) {
+           DB.remove('session');
+        } else {
+           state.user = u;
+           state.view = 'dashboard';
+           state.tab = (u.rol === Roles.REGIONAL || u.rol === Roles.MUNICIPAL) ? 'cargar' : 'inicio';
+           if(u.rol === Roles.MASTER) state.userTab = 'pendientes';
+        }
       } else { DB.remove('session'); }
     }
   }catch(e){ console.warn('init', e); }
